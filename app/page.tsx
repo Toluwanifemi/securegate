@@ -20,19 +20,10 @@ export default async function LandingPage() {
           <span className={styles.logoText}>SecureGate</span>
         </div>
         <div className={styles.headerActions}>
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <Link href="/dashboard" className={styles.navLink}>
               Dashboard
             </Link>
-          ) : (
-            <>
-              <Link href="/login" className={styles.navLink}>
-                Log In
-              </Link>
-              <Link href="/register" className={styles.navLink}>
-                Sign Up
-              </Link>
-            </>
           )}
         </div>
       </header>
@@ -41,7 +32,7 @@ export default async function LandingPage() {
         <div className={styles.heroContent}>
           <span className={styles.badge}>PRODUCTION-READY AUTHENTICATION</span>
           <h1 className={styles.heroTitle}>
-            Secure, Plug-and-Play Authentication for Next.js
+            Authentication You Control. Security You Can Trust
           </h1>
           <p className={styles.heroSubtitle}>
             A self-hostable gateway built on security-first architectures.
@@ -56,56 +47,19 @@ export default async function LandingPage() {
                 </Button>
               </Link>
             ) : (
-              <>
-                <Link href="/register" className={styles.ctaLink}>
-                  <Button size="lg" className={styles.ctaButton}>
-                    Get Started
-                  </Button>
-                </Link>
-                <Link href="/login" className={styles.ctaLink}>
-                  <Button size="lg" variant="outline" className={styles.ctaButton}>
-                    Log In
-                  </Button>
-                </Link>
-              </>
+              <Link href="/register" className={styles.ctaLink}>
+                <Button size="lg" className={styles.ctaButton}>
+                  Get Started
+                </Button>
+              </Link>
             )}
           </div>
         </div>
-
-        {/* Feature Highlights Grid */}
-        <section className={styles.featuresSection} aria-labelledby="features-heading">
-          <h2 id="features-heading" className={styles.sectionTitle}>Security Highlights</h2>
-          <div className={styles.featuresGrid}>
-            <div className={styles.featureCard}>
-              <span className={styles.featureIcon}>🛡️</span>
-              <h3 className={styles.featureTitle}>OWASP & NIST Aligned</h3>
-              <p className={styles.featureText}>
-                Utilizes secure cryptographic password hashing, strict input validation, and secure JWT token protocols.
-              </p>
-            </div>
-
-            <div className={styles.featureCard}>
-              <span className={styles.featureIcon}>⚡</span>
-              <h3 className={styles.featureTitle}>Low-Friction Setup</h3>
-              <p className={styles.featureText}>
-                Complete self-contained signup, email verification, credentials authentication, and password reset flows.
-              </p>
-            </div>
-
-            <div className={styles.featureCard}>
-              <span className={styles.featureIcon}>🚦</span>
-              <h3 className={styles.featureTitle}>Rate Limiting</h3>
-              <p className={styles.featureText}>
-                Brute-force mitigation on entry points utilizing Upstash sliding-window rate limiters.
-              </p>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className={styles.footer}>
         <p className={styles.footerText}>
-          &copy; {new Date().getFullYear()} SecureGate. All rights reserved. Self-hostable auth.
+          &copy; {new Date().getFullYear()} SecureGate. Self-hostable auth.
         </p>
       </footer>
     </div>

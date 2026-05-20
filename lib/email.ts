@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import type { ReactElement } from "react";
-import { renderToString } from "react-dom/server";
 
 interface SendEmailOptions {
   to: string;
@@ -46,6 +45,7 @@ export async function sendEmail({
   }
 
   try {
+    const { renderToString } = await import("react-dom/server");
     const html = renderToString(template);
     const info = await getTransporter().sendMail({
       from,
