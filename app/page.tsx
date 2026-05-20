@@ -35,8 +35,7 @@ export default async function LandingPage() {
             Authentication You Control. Security You Can Trust
           </h1>
           <p className={styles.heroSubtitle}>
-            A self-hostable gateway built on security-first architectures.
-            Aligned with OWASP and NIST guidelines, using NextAuth.js, Prisma, and PostgreSQL.
+            Build and control your authentication without relying on third-party services—secure, simple, and ready to deploy
           </p>
 
           <div className={styles.ctaContainer}>

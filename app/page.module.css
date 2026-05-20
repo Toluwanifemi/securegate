@@ -105,7 +105,7 @@
   line-height: 1.2;
   letter-spacing: -1.5px;
   color: var(--color-on-surface);
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 @media (min-width: 768px) {
