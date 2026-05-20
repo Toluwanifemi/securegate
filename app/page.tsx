@@ -35,7 +35,7 @@ export default async function LandingPage() {
             Authentication You Control. Security You Can Trust
           </h1>
           <p className={styles.heroSubtitle}>
-            Build and control your authentication without relying on third-party services—secure, simple, and ready to deploy
+            Secure, simple, self-hosted authentication—ready to deploy
           </p>
 
           <div className={styles.ctaContainer}>
@@ -46,7 +46,7 @@ export default async function LandingPage() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/register" className={styles.ctaLink}>
+              <Link href="/auth?mode=register" className={styles.ctaLink}>
                 <Button size="lg" className={styles.ctaButton}>
                   Get Started
                 </Button>

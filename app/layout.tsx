@@ -15,6 +15,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="referrer" content="no-referrer" />
       </head>
       <body>
         <main id="app-main-content">{children}</main>

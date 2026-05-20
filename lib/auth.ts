@@ -4,15 +4,21 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "./db";
 import { LoginSchema } from "./validations/auth";
-import bcryptjs from "bcryptjs";
+import { verifyPassword } from "./password-hash";
 import { authConfig } from "@/auth.config";
 
-// Extend session user types to include the user ID in TypeScript strict mode
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
     } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    emailVerified: Date | null;
   }
 }
 
@@ -28,18 +34,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { email, password } = parsed.data;
         const normalizedEmail = email.toLowerCase().trim();
 
-        // Fetch user from DB
         const user = await db.user.findUnique({
           where: { email: normalizedEmail },
         });
 
         if (!user || !user.password) return null;
 
-        // Compare password hash using bcryptjs
-        const passwordsMatch = await bcryptjs.compare(password, user.password);
+        // SHA-256 pre-hash eliminates bcrypt 72-byte truncation
+        const passwordsMatch = await verifyPassword(password, user.password);
         if (!passwordsMatch) return null;
 
-        // Return user details for JWT session placement
         return {
           id: user.id,
           name: user.name,

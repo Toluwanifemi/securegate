@@ -1,23 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/components/ui/Input";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { SignUpSchema } from "@/lib/validations/auth";
+import { Input } from "@/components/ui/Input";
+import { ResetPasswordSchema } from "@/lib/validations/auth";
+import styles from "./ResetPasswordForm.module.css";
 
-import styles from "./SignUpForm.module.css";
+interface ResetPasswordFormProps {
+  token: string;
+}
 
-export function SignUpForm() {
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
+export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+  const router = useRouter();
+
   const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
-  const [errors, setErrors] = React.useState<{ name?: string; email?: string; password?: string; form?: string }>({});
+  const [errors, setErrors] = React.useState<{ password?: string; confirmPassword?: string; form?: string }>({});
 
-  // Password strength indicator based on length (NIST SP 800-63B)
   const lengthProgress = Math.min(password.length / 8, 1);
-  
+
   let strengthLabel = "Weak";
   let strengthClass = styles.strengthWeak;
   if (password.length >= 8 && password.length < 12) {
@@ -30,17 +34,17 @@ export function SignUpForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setIsLoading(true);
     setErrors({});
     setSuccess(false);
 
-    // Validate inputs locally using Zod
-    const validationResult = SignUpSchema.safeParse({ name, email, password });
+    const validationResult = ResetPasswordSchema.safeParse({ password, confirmPassword });
     if (!validationResult.success) {
       const fieldErrors: typeof errors = {};
       validationResult.error.issues.forEach((err) => {
         if (err.path[0]) {
-          fieldErrors[err.path[0] as "name" | "email" | "password"] = err.message;
+          fieldErrors[err.path[0] as "password" | "confirmPassword"] = err.message;
         }
       });
       setErrors(fieldErrors);
@@ -49,41 +53,43 @@ export function SignUpForm() {
     }
 
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch("/api/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ token, password, confirmPassword }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        setErrors({ form: data.message || "Registration failed. Please try again." });
-        setIsLoading(false);
-      } else {
+      if (response.ok) {
         setSuccess(true);
-        setIsLoading(false);
-        setName("");
-        setEmail("");
         setPassword("");
+        setConfirmPassword("");
+        setTimeout(() => {
+          router.push("/auth?mode=login");
+        }, 3000);
+      } else {
+        setErrors({ form: data.message || "Failed to reset password. The link may have expired." });
       }
     } catch {
       setErrors({ form: "An unexpected error occurred. Please try again." });
+    } finally {
       setIsLoading(false);
     }
   };
 
   if (success) {
     return (
-      <div className={styles.successContainer}>
-        <div className={styles.successIcon} aria-hidden="true">✉️</div>
-        <h2 className={styles.successTitle}>Confirm your email</h2>
+      <div className={styles.successView}>
+        <div className={styles.successAlert} role="status">
+          Password reset completed successfully!
+        </div>
         <p className={styles.successText}>
-          We sent a verification link to your email address. Please click the link to activate your account.
+          Redirecting you to the login page...
         </p>
-        <p className={styles.successHint}>
-          Didn&apos;t receive it? Check your spam folder or try logging in to trigger a new link.
-        </p>
+        <Button className={styles.button} onClick={() => router.push("/auth?mode=login")}>
+          Go to Login
+        </Button>
       </div>
     );
   }
@@ -97,31 +103,7 @@ export function SignUpForm() {
       )}
 
       <Input
-        label="Enter Full Name"
-        type="text"
-        placeholder="Jane Doe"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        error={errors.name}
-        disabled={isLoading}
-        autoComplete="name"
-        required
-      />
-
-      <Input
-        label="Enter Email"
-        type="email"
-        placeholder="jane@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        error={errors.email}
-        disabled={isLoading}
-        autoComplete="email"
-        required
-      />
-
-      <Input
-        label="Password"
+        label="New Password"
         type="password"
         placeholder="••••••••"
         value={password}
@@ -132,7 +114,6 @@ export function SignUpForm() {
         required
       />
 
-      {/* Password Strength Indicator */}
       {password.length > 0 && (
         <div className={styles.strengthContainer}>
           <div className={styles.strengthHeader}>
@@ -145,7 +126,7 @@ export function SignUpForm() {
               style={{ width: `${lengthProgress * 100}%` }}
             />
           </div>
-          
+
           <ul className={styles.criteriaList} aria-label="Password requirements">
             <li className={password.length >= 8 ? styles.criteriaCheck : styles.criteriaCross}>
               At least 8 characters
@@ -154,11 +135,23 @@ export function SignUpForm() {
         </div>
       )}
 
+      <Input
+        label="Confirm New Password"
+        type="password"
+        placeholder="••••••••"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        error={errors.confirmPassword}
+        disabled={isLoading}
+        autoComplete="new-password"
+        required
+      />
+
       <Button type="submit" className={styles.button} isLoading={isLoading}>
-        Create Account
+        Reset Password
       </Button>
     </form>
   );
 }
 
-export default SignUpForm;
+export default ResetPasswordForm;

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ForgotPasswordSchema } from "@/lib/validations/auth";
-import { generatePasswordResetToken } from "@/lib/tokens";
+import { generatePasswordResetToken, hashToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
 import { PasswordResetEmail } from "@/emails/PasswordResetEmail";
 import { ratelimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
+import { getClientIp } from "@/lib/ip";
 import * as React from "react";
 
 export async function POST(req: Request) {
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
   }
 
   // Rate limiting check
-  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+  const ip = getClientIp(req);
   const limitRes = await ratelimit.limit(`forgot-password:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
@@ -52,10 +53,10 @@ export async function POST(req: Request) {
 
     // Generate secure password reset token
     const token = await generatePasswordResetToken(user.email);
-    const resetUrl = `${process.env.NEXTAUTH_URL}/forgot-password/reset?token=${token.token}`;
+    const resetUrl = `${process.env.NEXTAUTH_URL}/auth?mode=reset-password&token=${token.token}`;
 
     // Send reset email
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: user.email,
       subject: "Reset your SecureGate password",
       template: React.createElement(PasswordResetEmail, {
@@ -63,6 +64,14 @@ export async function POST(req: Request) {
         resetUrl,
       }),
     });
+
+    if (!emailResult.success) {
+      await db.passwordResetToken.delete({
+        where: { token: hashToken(token.token) },
+      }).catch((err) => {
+        console.error("[FORGOT_PASSWORD] Failed to clean up token after email failure", err);
+      });
+    }
 
     return NextResponse.json({
       message: "If an account exists for this email, a reset link has been sent.",

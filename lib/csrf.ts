@@ -1,16 +1,10 @@
-/**
- * CSRF protection for custom API routes.
- * Uses origin/referer header validation — the standard approach for
- * JSON-based REST APIs that don't use session cookies for CSRF.
- */
 export function validateCsrf(req: Request): boolean {
   const origin = req.headers.get("origin");
   const referer = req.headers.get("referer");
-  const host = req.headers.get("host");
+  const host = req.headers.get("host") || req.headers.get("x-forwarded-host");
 
   if (!host) return false;
 
-  // Check origin matches host
   if (origin) {
     try {
       const originUrl = new URL(origin);
@@ -20,7 +14,6 @@ export function validateCsrf(req: Request): boolean {
     }
   }
 
-  // Fall back to referer check
   if (referer) {
     try {
       const refererUrl = new URL(referer);

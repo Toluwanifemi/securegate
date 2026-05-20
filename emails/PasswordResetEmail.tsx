@@ -48,7 +48,7 @@ export function PasswordResetEmail({ name, resetUrl }: PasswordResetEmailProps) 
           </Section>
           <Text style={{ color: "#555555", fontSize: "13px", marginTop: "24px" }}>
             If this link has expired, visit the{" "}
-            <a href="/forgot-password" style={{ color: "#1a1a2e" }}>
+            <a href="/auth?mode=forgot-password" style={{ color: "#1a1a2e" }}>
               forgot password page
             </a>{" "}
             to request a new one.

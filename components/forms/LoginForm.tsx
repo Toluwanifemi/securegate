@@ -11,7 +11,10 @@ import styles from "./LoginForm.module.css";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const rawCallbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
+    ? rawCallbackUrl
+    : "/dashboard";
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -102,7 +105,7 @@ export function LoginForm() {
       />
 
       <div className={styles.forgotContainer}>
-        <a href="/forgot-password" className={styles.link}>
+        <a href="/auth?mode=forgot-password" className={styles.link}>
           Forgot Password?
         </a>
       </div>

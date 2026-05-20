@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
 import { db } from "@/lib/db";
 import { ResetPasswordSchema } from "@/lib/validations/auth";
 import { validatePasswordResetToken } from "@/lib/tokens";
 import { ratelimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
+import { hashPassword } from "@/lib/password-hash";
+import { getClientIp } from "@/lib/ip";
 
 export async function POST(req: Request) {
   // CSRF protection
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
   }
 
   // Rate limiting check
-  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+  const ip = getClientIp(req);
   const limitRes = await ratelimit.limit(`reset-password:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
@@ -23,7 +24,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { token, password, confirmPassword } = await req.json();
+    const body = await req.json();
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
+    }
+    const { token, password, confirmPassword } = body;
 
     if (!token) {
       return NextResponse.json({ message: "Token is required" }, { status: 400 });
@@ -47,8 +52,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash new password with 12 salt rounds
-    const hashedPassword = await bcryptjs.hash(password, 12);
+    // Hash new password with SHA-256 pre-hash + bcrypt (eliminates 72-byte truncation)
+    const hashedPassword = await hashPassword(password);
 
     // Update user password
     await db.user.update({
@@ -61,7 +66,9 @@ export async function POST(req: Request) {
     // Delete reset token immediately to prevent reuse (replay attack mitigation)
     await db.passwordResetToken.delete({
       where: { token: tokenEntry.token },
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("[RESET_PASSWORD] Failed to delete token", err);
+    });
 
     return NextResponse.json({ message: "Password reset completed successfully." });
   } catch (error) {

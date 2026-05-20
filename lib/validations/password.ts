@@ -13,4 +13,7 @@ export const passwordStrengthRegex = {
 export const passwordSchema = z
   .string()
   .min(8, { message: "Password must be at least 8 characters long" })
-  .max(128, { message: "Password must be 128 characters or fewer" });
+  .max(128, { message: "Password must be 128 characters or fewer" })
+  .refine((val) => new TextEncoder().encode(val).length <= 72, {
+    message: "Password must be 72 bytes or fewer when encoded",
+  });

@@ -1,26 +1,32 @@
 import type { NextAuthConfig } from "next-auth";
 
+declare module "next-auth" {
+  interface User {
+    emailVerified: Date | null;
+  }
+}
+
 export const authConfig = {
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/auth",
+    error: "/auth",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.emailVerified = (user as any).emailVerified;
+        token.emailVerified = user.emailVerified;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).emailVerified = token.emailVerified;
+        session.user.id = token.id;
+        (session.user as { emailVerified?: Date | null }).emailVerified = token.emailVerified;
       }
       return session;
     },
   },
-  providers: [], // Will be populated with Node.js compatible providers in lib/auth.ts
+  providers: [],
 } satisfies NextAuthConfig;

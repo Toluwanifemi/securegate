@@ -10,7 +10,7 @@ interface SignOutButtonProps {
 export function SignOutButton({ className }: SignOutButtonProps) {
   const handleSignOut = async () => {
     await signOut({
-      callbackUrl: "/login",
+      callbackUrl: "/auth",
     });
   };
 

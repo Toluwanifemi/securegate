@@ -12,23 +12,21 @@ export const metadata = {
 export default async function DashboardPage() {
   const session = await auth();
 
-  // Guard: Must be authenticated
-  if (!session || !session.user) {
-    redirect("/login");
+  if (!session?.user?.id) {
+    redirect("/auth");
   }
 
-  // Fetch full user record from database to guarantee real-time verified state check
   const user = await db.user.findUnique({
     where: { id: session.user.id },
   });
 
   if (!user) {
-    redirect("/login");
+    redirect("/auth");
   }
 
   // Guard: Must have completed email verification
   if (!user.emailVerified) {
-    redirect("/verify-email");
+    redirect("/auth?mode=verify-email");
   }
 
   return (
@@ -67,7 +65,7 @@ export default async function DashboardPage() {
               <div className={styles.detailRow}>
                 <span className={styles.label}>Joined</span>
                 <span className={styles.value}>
-                  {new Date(user.createdAt).toLocaleDateString(undefined, {
+                  {new Date(user.createdAt ?? Date.now()).toLocaleDateString(undefined, {
                     dateStyle: "long",
                   })}
                 </span>

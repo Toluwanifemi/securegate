@@ -83,11 +83,10 @@ if (hasUpstashConfig) {
     },
   };
 
-  if (process.env.NODE_ENV === "development") {
-    console.warn(
-      "[RATE_LIMIT] Upstash Redis credentials not configured. Using in-memory fallback rate limiter."
-    );
-  }
+  console.warn(
+    "[RATE_LIMIT] Upstash Redis credentials not configured. Using in-memory fallback rate limiter " +
+    "(not shared across multiple server instances)."
+  );
 }
 
 export { ratelimit };

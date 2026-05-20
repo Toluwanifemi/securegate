@@ -11,6 +11,7 @@ export default auth((req) => {
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
   const isPublicRoute =
     nextUrl.pathname === "/" ||
+    nextUrl.pathname === "/auth" ||
     nextUrl.pathname === "/login" ||
     nextUrl.pathname === "/register" ||
     nextUrl.pathname === "/forgot-password" ||
@@ -24,7 +25,11 @@ export default auth((req) => {
   }
 
   // 2. If logged in, redirect active sessions away from auth entry forms
-  if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
+  if (isLoggedIn && (nextUrl.pathname === "/auth" || nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
+    const mode = nextUrl.searchParams.get("mode");
+    if (mode === "reset-password" || mode === "forgot-password" || mode === "verify-email") {
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
@@ -35,14 +40,14 @@ export default auth((req) => {
       callbackUrl += nextUrl.search;
     }
     const encodedCallbackUrl = encodeURIComponent(callbackUrl);
-    return NextResponse.redirect(new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl));
+    return NextResponse.redirect(new URL(`/auth?mode=login&callbackUrl=${encodedCallbackUrl}`, nextUrl));
   }
 
   // 4. Verification guard: If logged in but unverified, block dashboard access and redirect to notice page
   if (isLoggedIn && !isPublicRoute) {
     const isVerified = (req.auth?.user as any)?.emailVerified;
-    if (!isVerified && nextUrl.pathname !== "/verify-email") {
-      return NextResponse.redirect(new URL("/verify-email", nextUrl));
+    if (!isVerified && nextUrl.pathname !== "/verify-email" && nextUrl.pathname !== "/auth") {
+      return NextResponse.redirect(new URL("/auth?mode=verify-email", nextUrl));
     }
   }
 

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcryptjs from "bcryptjs";
 import { db } from "@/lib/db";
 import { SignUpSchema } from "@/lib/validations/auth";
 import { generateEmailVerificationToken } from "@/lib/tokens";
@@ -7,6 +6,8 @@ import { sendEmail } from "@/lib/email";
 import { VerificationEmail } from "@/emails/VerificationEmail";
 import { ratelimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
+import { hashPassword } from "@/lib/password-hash";
+import { getClientIp } from "@/lib/ip";
 import * as React from "react";
 
 export async function POST(req: Request) {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   }
 
   // Rate limiting check based on client IP
-  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+  const ip = getClientIp(req);
   const limitRes = await ratelimit.limit(`register:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
       // If user exists and is not verified, silently trigger a new verification email
       if (!existingUser.emailVerified) {
         const token = await generateEmailVerificationToken(existingUser.email);
-        const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token.token}`;
+        const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
         
         await sendEmail({
           to: normalizedEmail,
@@ -66,13 +67,13 @@ export async function POST(req: Request) {
       });
     }
 
-    // Hash password with 12 salt rounds
-    const hashedPassword = await bcryptjs.hash(password, 12);
+    // Hash password with SHA-256 pre-hash + bcrypt (eliminates 72-byte truncation)
+    const hashedPassword = await hashPassword(password);
 
     // Create user in database
     const newUser = await db.user.create({
       data: {
-        name,
+        name: name.trim(),
         email: normalizedEmail,
         password: hashedPassword,
       },
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
 
     // Generate email verification token
     const token = await generateEmailVerificationToken(newUser.email);
-    const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token.token}`;
+    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
 
     // Send verification email
     const emailResult = await sendEmail({

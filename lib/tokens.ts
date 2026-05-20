@@ -82,7 +82,9 @@ export async function validateEmailVerificationToken(token: string) {
 
   const hasExpired = new Date() > tokenEntry.expires;
   if (hasExpired) {
-    await db.emailVerificationToken.delete({ where: { token: tokenEntry.token } }).catch(() => {});
+    await db.emailVerificationToken.delete({ where: { token: tokenEntry.token } }).catch((err) => {
+      console.error("[TOKENS] Failed to delete expired email verification token", err);
+    });
     return null;
   }
 
@@ -103,7 +105,9 @@ export async function validatePasswordResetToken(token: string) {
 
   const hasExpired = new Date() > tokenEntry.expires;
   if (hasExpired) {
-    await db.passwordResetToken.delete({ where: { token: tokenEntry.token } }).catch(() => {});
+    await db.passwordResetToken.delete({ where: { token: tokenEntry.token } }).catch((err) => {
+      console.error("[TOKENS] Failed to delete expired password reset token", err);
+    });
     return null;
   }
 

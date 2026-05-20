@@ -1,33 +1,23 @@
-import Link from "next/link";
-import { LoginForm } from "@/components/forms/LoginForm";
-import styles from "./page.module.css";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Log In — SecureGate",
-  description: "Sign in to your SecureGate account.",
-};
+interface LoginPageProps {
+  searchParams: Record<string, string | string[] | undefined>;
+}
 
-export default function LoginPage() {
-  return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <div className={styles.logo} aria-hidden="true">🔐</div>
-          <h1 className={styles.title}>Welcome back</h1>
-          <p className={styles.subtitle}>Log in to access your dashboard</p>
-        </div>
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const params = new URLSearchParams({ mode: "login" });
 
-        <LoginForm />
+  if (searchParams.callbackUrl) {
+    params.set("callbackUrl", String(searchParams.callbackUrl));
+  }
 
-        <div className={styles.footer}>
-          <p className={styles.footerText}>
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className={styles.link} id="signup-redirect-link">
-              Sign Up
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  if (searchParams.error) {
+    params.set("error", String(searchParams.error));
+  }
+
+  if (searchParams.verified) {
+    params.set("verified", String(searchParams.verified));
+  }
+
+  redirect(`/auth?${params.toString()}`);
 }
