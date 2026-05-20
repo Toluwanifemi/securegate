@@ -33,10 +33,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email: normalizedEmail },
         });
 
-        if (!user || !user.passwordHash) return null;
+        if (!user || !user.password) return null;
 
         // Compare password hash using bcryptjs
-        const passwordsMatch = await bcryptjs.compare(password, user.passwordHash);
+        const passwordsMatch = await bcryptjs.compare(password, user.password);
         if (!passwordsMatch) return null;
 
         // Return user details for JWT session placement

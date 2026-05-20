@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     }
 
     // Generate new email verification token
-    const token = await generateEmailVerificationToken(user.id);
+    const token = await generateEmailVerificationToken(user.email);
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token.token}`;
 
     // Send verification email
@@ -62,7 +62,6 @@ export async function POST(req: Request) {
         name: user.name || "User",
         verificationUrl,
       }),
-      idempotencyKey: `verify:${user.id}`,
     });
 
     return NextResponse.json({

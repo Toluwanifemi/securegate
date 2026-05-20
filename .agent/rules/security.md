@@ -256,8 +256,11 @@ const apiKey = "re_abc123...";
 DATABASE_URL             ← PostgreSQL connection string
 NEXTAUTH_SECRET          ← 32+ char random string
 NEXTAUTH_URL             ← Full URL of the deployment
-RESEND_API_KEY           ← Resend API key
-EMAIL_FROM               ← Verified sender address
+SMTP_HOST               ← SMTP server hostname
+SMTP_PORT               ← SMTP server port (default 587)
+SMTP_USER               ← SMTP authentication user
+SMTP_PASS               ← SMTP authentication password
+EMAIL_FROM              ← Verified sender address
 UPSTASH_REDIS_REST_URL   ← Upstash Redis endpoint
 UPSTASH_REDIS_REST_TOKEN ← Upstash Redis auth token
 ```

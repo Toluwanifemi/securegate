@@ -20,7 +20,7 @@ securegate/
 │   │   ├── design-system.md
 │   │   └── security.md
 │   └── skills/
-│       ├── resend-integration/
+│       ├── nodemailer-integration/
 │       ├── component-builder/
 │       ├── api-route-scaffolder/
 │       └── db-migration-runner/
@@ -67,7 +67,7 @@ securegate/
 │   ├── auth.ts                        ← NextAuth config
 │   ├── cn.ts                          ← Classname merge utility (clsx)
 │   ├── db.ts                          ← Prisma client singleton
-│   ├── email.ts                       ← Resend send helper
+│   ├── email.ts                       ← Nodemailer send helper
 │   ├── tokens.ts                      ← Token generation & validation
 │   ├── rate-limit.ts                  ← Upstash rate limiter instance
 │   └── validations/
@@ -122,7 +122,7 @@ export const config = {
 | `auth.ts`         | NextAuth configuration — providers, callbacks, adapter      |
 | `cn.ts`           | Classname merge utility (`clsx` + `tailwind-merge`)         |
 | `db.ts`           | Single Prisma client instance (singleton pattern)           |
-| `email.ts`        | Wraps Resend — exposes typed `sendEmail()` function         |
+| `email.ts`        | Wraps Nodemailer — exposes typed `sendEmail()` function |
 | `tokens.ts`       | `generateToken()`, `validateToken()`, `deleteToken()`       |
 | `rate-limit.ts`   | Upstash Ratelimit instance with sliding window config       |
 

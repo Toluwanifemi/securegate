@@ -32,7 +32,7 @@ You are a senior full-stack developer building SecureGate. Your responsibilities
 | Database     | PostgreSQL via Prisma ORM       |
 | Auth         | NextAuth.js (Auth.js v5)        |
 | Password     | bcryptjs                        |
-| Email        | Resend + React Email            |
+| Email        | Nodemailer + SMTP                  |
 | Validation   | Zod                             |
 | Rate Limit   | Upstash/ratelimit               |
 | Deployment   | Vercel                          |
@@ -42,7 +42,7 @@ You are a senior full-stack developer building SecureGate. Your responsibilities
 
 ## Core Features
 
-1. **Sign Up** — Zod-validated form, password strength indicator, email confirmation via Resend
+1. **Sign Up** — Zod-validated form, password strength indicator, email confirmation via Nodemailer
 2. **Login** — Email/password via NextAuth, secure session cookies, non-revealing error messages
 3. **Email Verification** — Token-based flow with expiry handling and graceful fallback UI
 4. **Protected Dashboard** — Auth + verification guard with strict redirect logic
@@ -89,7 +89,7 @@ securegate/
 │   │   ├── design-system.md          ← UI component & styling rules
 │   │   └── security.md               ← Security implementation standards
 │   └── skills/
-│       ├── resend-integration/       ← Email sending via Resend
+│       ├── nodemailer-integration/       ← Email sending via Nodemailer + SMTP
 │       ├── component-builder/        ← UI component scaffolding
 │       ├── api-route-scaffolder/     ← API route scaffolding
 │       └── db-migration-runner/      ← Prisma migration workflow
@@ -126,7 +126,7 @@ Before writing any code, the agent MUST read the relevant rule files:
 
 | Task                         | Skill                                        |
 |------------------------------|----------------------------------------------|
-| Sending email via Resend     | `.agent/skills/resend-integration/SKILL.md`         |
+| Sending email via Nodemailer     | `.agent/skills/nodemailer-integration/SKILL.md`         |
 | Building a new UI component  | `.agent/skills/component-builder/SKILL.md`          |
 | Scaffolding an API route     | `.agent/skills/api-route-scaffolder/SKILL.md`       |
 | Running a DB migration       | `.agent/skills/db-migration-runner/SKILL.md`        |
@@ -140,7 +140,11 @@ DATABASE_URL=
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=
 
-RESEND_API_KEY=
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
 EMAIL_FROM=
 
 UPSTASH_REDIS_REST_URL=

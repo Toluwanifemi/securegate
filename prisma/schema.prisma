@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -8,15 +8,13 @@ generator client {
 }
 
 model User {
-  id                     String                   @id @default(uuid())
-  name                   String?
-  email                  String                   @unique
-  passwordHash           String
-  createdAt              DateTime                 @default(now())
-  emailVerified          DateTime?
-  sessions               Session[]
-  passwordResetTokens    PasswordResetToken[]
-  emailVerificationTokens EmailVerificationToken[]
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  emailVerified DateTime?
+  sessions      Session[]
 }
 
 model Session {
@@ -27,18 +25,14 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model PasswordResetToken {
-  id      String   @id @default(uuid())
-  userId  String
-  token   String   @unique
-  expires DateTime
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model EmailVerificationToken {
+  identifier String
+  token      String   @id
+  expires    DateTime
 }
 
-model EmailVerificationToken {
-  id      String   @id @default(uuid())
-  userId  String
-  token   String   @unique
+model PasswordResetToken {
+  email   String
+  token   String   @id
   expires DateTime
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     // Mark user email as verified
     await db.user.update({
-      where: { id: tokenEntry.userId },
+      where: { email: tokenEntry.identifier },
       data: {
         emailVerified: new Date(),
       },
@@ -49,12 +49,12 @@ export async function POST(req: Request) {
 
     // Delete token immediately to prevent reuse (replay attack mitigation)
     await db.emailVerificationToken.delete({
-      where: { id: tokenEntry.id },
+      where: { token: tokenEntry.token },
     }).catch(() => {});
 
     // Fetch user details to send Welcome email
     const user = await db.user.findUnique({
-      where: { id: tokenEntry.userId },
+      where: { email: tokenEntry.identifier },
     });
 
     if (user) {
@@ -66,7 +66,6 @@ export async function POST(req: Request) {
           name: user.name || "User",
           loginUrl,
         }),
-        idempotencyKey: `welcome:${user.id}`,
       });
     }
 

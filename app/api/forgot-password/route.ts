@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     }
 
     // Generate secure password reset token
-    const token = await generatePasswordResetToken(user.id);
+    const token = await generatePasswordResetToken(user.email);
     const resetUrl = `${process.env.NEXTAUTH_URL}/forgot-password/reset?token=${token.token}`;
 
     // Send reset email
@@ -62,7 +62,6 @@ export async function POST(req: Request) {
         name: user.name || "User",
         resetUrl,
       }),
-      idempotencyKey: `reset:${user.id}:${token.expires.getTime()}`,
     });
 
     return NextResponse.json({

@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     if (existingUser) {
       // If user exists and is not verified, silently trigger a new verification email
       if (!existingUser.emailVerified) {
-        const token = await generateEmailVerificationToken(existingUser.id);
+        const token = await generateEmailVerificationToken(existingUser.email);
         const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token.token}`;
         
         await sendEmail({
@@ -57,7 +57,6 @@ export async function POST(req: Request) {
             name: existingUser.name || name,
             verificationUrl,
           }),
-          idempotencyKey: `verify:${existingUser.id}`,
         });
       }
 
@@ -75,12 +74,12 @@ export async function POST(req: Request) {
       data: {
         name,
         email: normalizedEmail,
-        passwordHash: hashedPassword,
+        password: hashedPassword,
       },
     });
 
     // Generate email verification token
-    const token = await generateEmailVerificationToken(newUser.id);
+    const token = await generateEmailVerificationToken(newUser.email);
     const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token.token}`;
 
     // Send verification email
@@ -91,7 +90,6 @@ export async function POST(req: Request) {
         name: newUser.name || "User",
         verificationUrl,
       }),
-      idempotencyKey: `verify:${newUser.id}`,
     });
 
     if (!emailResult.success) {

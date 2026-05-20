@@ -52,15 +52,15 @@ export async function POST(req: Request) {
 
     // Update user password
     await db.user.update({
-      where: { id: tokenEntry.userId },
+      where: { email: tokenEntry.email },
       data: {
-        passwordHash: hashedPassword,
+        password: hashedPassword,
       },
     });
 
     // Delete reset token immediately to prevent reuse (replay attack mitigation)
     await db.passwordResetToken.delete({
-      where: { id: tokenEntry.id },
+      where: { token: tokenEntry.token },
     }).catch(() => {});
 
     return NextResponse.json({ message: "Password reset completed successfully." });

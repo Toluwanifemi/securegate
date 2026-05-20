@@ -20,19 +20,19 @@ export function hashToken(token: string): string {
  * Creates an email verification token for a user.
  * Stores only the SHA-256 hash. Expires in 24 hours.
  */
-export async function generateEmailVerificationToken(userId: string) {
+export async function generateEmailVerificationToken(identifier: string) {
   const token = generateSecureToken();
   const hashed = hashToken(token);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-  // Delete existing verification tokens for this user to avoid database bloat
+  // Delete existing verification tokens for this identifier to avoid database bloat
   await db.emailVerificationToken.deleteMany({
-    where: { userId },
+    where: { identifier },
   });
 
   const emailVerificationToken = await db.emailVerificationToken.create({
     data: {
-      userId,
+      identifier,
       token: hashed,
       expires,
     },
@@ -46,19 +46,19 @@ export async function generateEmailVerificationToken(userId: string) {
  * Creates a password reset token for a user.
  * Stores only the SHA-256 hash. Expires in 1 hour.
  */
-export async function generatePasswordResetToken(userId: string) {
+export async function generatePasswordResetToken(email: string) {
   const token = generateSecureToken();
   const hashed = hashToken(token);
   const expires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
 
-  // Delete existing reset tokens for this user
+  // Delete existing reset tokens for this email
   await db.passwordResetToken.deleteMany({
-    where: { userId },
+    where: { email },
   });
 
   const passwordResetToken = await db.passwordResetToken.create({
     data: {
-      userId,
+      email,
       token: hashed,
       expires,
     },
@@ -82,7 +82,7 @@ export async function validateEmailVerificationToken(token: string) {
 
   const hasExpired = new Date() > tokenEntry.expires;
   if (hasExpired) {
-    await db.emailVerificationToken.delete({ where: { id: tokenEntry.id } }).catch(() => {});
+    await db.emailVerificationToken.delete({ where: { token: tokenEntry.token } }).catch(() => {});
     return null;
   }
 
@@ -103,7 +103,7 @@ export async function validatePasswordResetToken(token: string) {
 
   const hasExpired = new Date() > tokenEntry.expires;
   if (hasExpired) {
-    await db.passwordResetToken.delete({ where: { id: tokenEntry.id } }).catch(() => {});
+    await db.passwordResetToken.delete({ where: { token: tokenEntry.token } }).catch(() => {});
     return null;
   }
 
