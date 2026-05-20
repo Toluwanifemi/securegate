@@ -17,7 +17,7 @@ You are a senior full-stack developer building SecureGate. Your responsibilities
 
 - Implement all authentication features to production-ready standards
 - Write clean, well-commented TypeScript throughout
-- Follow the rules defined in `.agents/rules/` for every file you create or modify
+- Follow the rules defined in `.agent/rules/` for every file you create or modify
 - Never guess at missing information — ask one or two clarifying questions instead
 - Never hardcode secrets, tokens, or credentials
 
@@ -57,7 +57,7 @@ You are a senior full-stack developer building SecureGate. Your responsibilities
 
 ### User
 ```
-id, name, email, password_hash, created_at, emailVerified
+id, name, email, passwordHash, createdAt, emailVerified
 ```
 
 ### Session
@@ -82,25 +82,29 @@ id, userId, token, expires
 ```
 securegate/
 ├── AGENTS.md                         ← You are here
-├── .agents/
-│   └── rules/
-│       ├── architecture.md           ← Folder structure & routing rules
-│       ├── code-style.md             ← TypeScript & formatting standards
-│       ├── design-system.md          ← UI component & styling rules
-│       └── security.md               ← Security implementation standards
-├── skills/
-│   ├── resend-integration/           ← Email sending via Resend
-│   ├── component-builder/            ← UI component scaffolding
-│   ├── api-route-scaffolder/         ← API route scaffolding
-│   └── db-migration-runner/          ← Prisma migration workflow
-├── workflows/
-│   ├── new-component.md              ← Steps to add a new UI component
-│   └── new-api-route.md              ← Steps to add a new API route
-├── app/
-├── components/
-├── lib/
-├── prisma/
-└── emails/
+├── .agent/
+│   ├── rules/
+│   │   ├── architecture.md           ← Folder structure & routing rules
+│   │   ├── code-style.md             ← TypeScript & formatting standards
+│   │   ├── design-system.md          ← UI component & styling rules
+│   │   └── security.md               ← Security implementation standards
+│   └── skills/
+│       ├── resend-integration/       ← Email sending via Resend
+│       ├── component-builder/        ← UI component scaffolding
+│       ├── api-route-scaffolder/     ← API route scaffolding
+│       └── db-migration-runner/      ← Prisma migration workflow
+├── app/                          ← App Router pages & API routes
+├── components/                   ← React components (ui/, forms/, shared/)
+├── lib/                          ← Shared utilities (db, auth, tokens, etc.)
+├── emails/                       ← React Email templates
+├── prisma/                       ← Prisma schema & migrations
+├── middleware.ts                 ← Route protection & rate limiting
+├── auth.config.ts                ← NextAuth base config
+├── public/                       ← Static assets
+├── package.json
+├── tsconfig.json
+└── next.config.mjs
+└── tokens/                           ← Design tokens (CSS custom properties)
 ```
 
 ---
@@ -111,10 +115,10 @@ Before writing any code, the agent MUST read the relevant rule files:
 
 | Task                          | Rule File                         |
 |-------------------------------|-----------------------------------|
-| Creating files or folders     | `.agents/rules/architecture.md`   |
-| Writing any TypeScript        | `.agents/rules/code-style.md`     |
-| Building UI components        | `.agents/rules/design-system.md`  |
-| Handling auth, tokens, input  | `.agents/rules/security.md`       |
+| Creating files or folders     | `.agent/rules/architecture.md`   |
+| Writing any TypeScript        | `.agent/rules/code-style.md`     |
+| Building UI components        | `.agent/rules/design-system.md`  |
+| Handling auth, tokens, input  | `.agent/rules/security.md`       |
 
 ---
 
@@ -122,10 +126,10 @@ Before writing any code, the agent MUST read the relevant rule files:
 
 | Task                         | Skill                                        |
 |------------------------------|----------------------------------------------|
-| Sending email via Resend     | `skills/resend-integration/SKILL.md`         |
-| Building a new UI component  | `skills/component-builder/SKILL.md`          |
-| Scaffolding an API route     | `skills/api-route-scaffolder/SKILL.md`       |
-| Running a DB migration       | `skills/db-migration-runner/SKILL.md`        |
+| Sending email via Resend     | `.agent/skills/resend-integration/SKILL.md`         |
+| Building a new UI component  | `.agent/skills/component-builder/SKILL.md`          |
+| Scaffolding an API route     | `.agent/skills/api-route-scaffolder/SKILL.md`       |
+| Running a DB migration       | `.agent/skills/db-migration-runner/SKILL.md`        |
 
 ---
 
@@ -142,6 +146,19 @@ EMAIL_FROM=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```
+
+---
+
+## Scripts
+
+All commands run from the project root:
+
+| Command           | Description                  |
+|-------------------|------------------------------|
+| `npm run dev`     | Start development server     |
+| `npm run build`   | Production build             |
+| `npm run start`   | Start production server      |
+| `npm run lint`    | Run ESLint                   |
 
 ---
 

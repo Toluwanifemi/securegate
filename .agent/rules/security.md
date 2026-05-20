@@ -55,13 +55,18 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 ### Rule: Enforce password minimum requirements via Zod
 
+Align with NIST SP 800-63B: focus on length, not composition rules.
+
 ```ts
 const PasswordSchema = z
   .string()
   .min(8, "Must be at least 8 characters")
-  .regex(/[A-Z]/, "Must include an uppercase letter")
-  .regex(/[0-9]/, "Must include a number");
+  .max(128, "Password must be 128 characters or fewer");
 ```
+
+Do not enforce uppercase, number, or special-character requirements — they
+encourage predictable patterns (e.g. `Password1!`) without meaningful security gains.
+If you need stronger auth, add multi-factor authentication instead.
 
 ### Rule: Never log passwords — not even in development
 
@@ -122,7 +127,7 @@ in the same transaction as the action it authorises.
 ```ts
 await db.$transaction([
   db.user.update({ where: { id }, data: { emailVerified: new Date() } }),
-  db.emailVerificationToken.delete({ where: { token } }),
+  db.emailVerificationToken.delete({ where: { token: hashedToken } }),
 ]);
 ```
 
@@ -135,6 +140,43 @@ import crypto from "crypto";
 
 export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
+}
+```
+
+---
+
+## CSRF Protection
+
+### Rule: Protect all custom API routes against CSRF
+
+NextAuth.js handles CSRF for `POST /api/auth/signin` and related endpoints automatically.
+For custom auth routes (`register`, `forgot-password`, `reset-password`), use
+origin/referer header validation implemented in `lib/csrf.ts`:
+
+```ts
+// lib/csrf.ts
+export function validateCsrf(req: Request): boolean {
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const host = req.headers.get("host");
+  if (!host) return false;
+  if (origin) {
+    try { return new URL(origin).host === host; } catch { return false; }
+  }
+  if (referer) {
+    try { return new URL(referer).host === host; } catch { return false; }
+  }
+  return false;
+}
+```
+
+Usage in every API route:
+
+```ts
+import { validateCsrf } from "@/lib/csrf";
+
+if (!validateCsrf(req)) {
+  return NextResponse.json({ message: "Invalid request origin" }, { status: 403 });
 }
 ```
 
@@ -159,13 +201,21 @@ await signOut({ redirect: false });
 
 ## Rate Limiting
 
+### Rule: Require HTTPS for all authentication pages
+
+All pages in the `(auth)` route group and all `api/auth/*` endpoints must only
+be served over HTTPS. In production, Vercel enforces this automatically. For
+local development, NextAuth warns when used over HTTP.
+
+---
+
 ### Rule: Apply rate limiting to all authentication endpoints
 
-| Endpoint                  | Limit             | Window     |
-|---------------------------|-------------------|------------|
-| `POST /api/auth/signin`   | 5 attempts        | 15 minutes |
-| `POST /api/register`      | 3 attempts        | 1 hour     |
-| `POST /api/forgot-password` | 3 attempts      | 1 hour     |
+| Endpoint                  | Limit             | Window     | Scope     |
+|---------------------------|-------------------|------------|-----------|
+| `POST /api/auth/signin`   | 5 attempts        | 15 minutes | Per-IP    |
+| `POST /api/register`      | 3 attempts        | 1 hour     | Per-IP    |
+| `POST /api/forgot-password` | 3 attempts      | 1 hour     | Per-IP    |
 
 ```ts
 // lib/rate-limit.ts
@@ -179,8 +229,9 @@ export const loginRateLimit = new Ratelimit({
 });
 ```
 
-When the limit is hit, return `429 Too Many Requests` with a user-friendly message.
-Never reveal the remaining limit count to the client.
+When the limit is hit, return `429 Too Many Requests` with a user-friendly message
+and a `Retry-After` header (seconds until reset). Never reveal the remaining limit
+count to the client.
 
 ---
 

@@ -1,0 +1,192 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+.header {
+  height: 64px;
+  border-bottom: 1px solid var(--color-outline);
+  background-color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 0 32px;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  font-size: 24px;
+}
+
+.logoText {
+  font-family: var(--typo-title-large-font-family);
+  font-size: var(--typo-title-large-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.main {
+  flex: 1;
+  padding: 24px 16px; /* Spacing scale */
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 48px 32px; /* Spacing scale */
+  }
+}
+
+.welcomeBanner {
+  margin-bottom: 32px; /* Spacing scale */
+}
+
+.welcomeTitle {
+  font-family: var(--typo-headline-large-font-family);
+  font-size: var(--typo-headline-large-font-size);
+  font-weight: 800;
+  color: var(--color-on-surface);
+  margin-bottom: 8px;
+}
+
+.welcomeSubtitle {
+  font-family: var(--typo-body-large-font-family);
+  font-size: var(--typo-body-large-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px; /* Spacing scale */
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  padding: 24px; /* Spacing scale */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.cardTitle {
+  font-family: var(--typo-title-large-font-family);
+  font-size: var(--typo-title-large-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 12px;
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Spacing scale */
+}
+
+.detailRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (min-width: 768px) {
+  .detailRow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.label {
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.6;
+}
+
+.value {
+  font-family: var(--typo-body-large-font-family);
+  font-size: var(--typo-body-large-font-size);
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+.valueCode {
+  font-family: monospace;
+  font-size: 13px;
+  background-color: var(--color-surface-container-high);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--color-on-surface);
+  word-break: break-all;
+}
+
+.diagnosticsList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.diagnosticItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.diagHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diagIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.diagIndicator[data-status="success"] {
+  background-color: #16a34a;
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
+}
+
+.diagName {
+  font-family: var(--typo-body-large-font-family);
+  font-size: var(--typo-body-large-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.diagDescription {
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.7;
+  line-height: 1.5;
+  padding-left: 20px;
+}

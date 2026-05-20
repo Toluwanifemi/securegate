@@ -42,6 +42,11 @@ type AuthResult = { success: true; token: string } | { success: false; error: st
 const handler = async (req: any) => { ... };
 ```
 
+### Naming Conventions
+
+See `.agent/rules/architecture.md` → **Naming Conventions** table for file naming
+(PascalCase for components, kebab-case for API routes, camelCase for utilities, etc.).
+
 ### Explicit Return Types
 
 All functions must have an explicit return type unless the return is trivially
@@ -126,7 +131,7 @@ const result = LoginSchema.parse(body); // throws on failure
 // 4. Export
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import type { ButtonProps } from "./Button.types";
 
 interface LoginFormProps {
@@ -137,6 +142,24 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   // ...
 }
 ```
+
+### cn() Utility
+
+`cn()` (from `@/lib/cn`) merges Tailwind classnames using `clsx` + `tailwind-merge`.
+It resolves conflicting utility classes and accepts strings, arrays, and conditionals.
+
+```ts
+cn("px-4 py-2", isActive && "bg-brand", className)
+```
+
+Every component that renders a single root element must pass `className` through `cn()`.
+
+### Hooks
+
+- All hooks must be named with a `use` prefix — custom hooks and built-in hooks alike
+- Never call hooks inside conditions, loops, or nested functions — follow the Rules of Hooks
+- Dependency arrays must list every reactive value used inside the effect/memo/callback
+- Extract complex hook logic into a custom hook rather than keeping it inline in the component
 
 ### Props
 
@@ -150,21 +173,33 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
 - Error messages shown to users must be generic enough not to reveal system details
 - Internal errors are logged with a `[CONTEXT]` prefix, never surfaced to the client
+- Use a structured logger when available (e.g. `pino`, `winston`); fall back to `console.error` with `[CONTEXT]` prefix until a logger is configured
 
 ```ts
 // User-facing
 return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
-// Internal log
+// Internal log — replace with structured logger when available
 console.error("[LOGIN_ERROR]", error);
 ```
+
+---
+
+## Testing
+
+- Place test files next to the module they test, named `<module>.test.ts` (or `.test.tsx`)
+- Use a testing library consistent with the project setup (e.g. Vitest, Jest)
+- Test behaviour, not implementation — prefer avoid snapshot testing of large trees
+- Every Zod schema must have a test for valid input and at least one invalid case
+- API route tests should cover: success, validation failure, auth failure, not-found
 
 ---
 
 ## Comments
 
 - Write comments for *why*, not *what*
-- All exported functions must have a JSDoc comment
+- All exported functions must have a JSDoc comment (exempt trivial getters, simple
+  boolean flags, and wrappers under 5 lines that just delegate)
 
 ```ts
 /**

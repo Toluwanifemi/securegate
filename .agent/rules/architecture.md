@@ -12,8 +12,20 @@ this structure without deviation.
 
 ```
 securegate/
+├── AGENTS.md                              ← Agent context & mission
+├── .agent/                                ← Agent rules & skills
+│   ├── rules/
+│   │   ├── architecture.md
+│   │   ├── code-style.md
+│   │   ├── design-system.md
+│   │   └── security.md
+│   └── skills/
+│       ├── resend-integration/
+│       ├── component-builder/
+│       ├── api-route-scaffolder/
+│       └── db-migration-runner/
 ├── app/
-│   ├── (auth)/                     ← Route group for unauthenticated pages
+│   ├── (auth)/                        ← Route group for unauthenticated pages
 │   │   ├── login/
 │   │   │   └── page.tsx
 │   │   ├── signup/
@@ -24,13 +36,13 @@ securegate/
 │   │       ├── page.tsx
 │   │       └── reset/
 │   │           └── page.tsx
-│   ├── (protected)/                ← Route group for authenticated pages
+│   ├── (protected)/                   ← Route group for authenticated pages
 │   │   └── dashboard/
 │   │       └── page.tsx
 │   ├── api/
 │   │   ├── auth/
 │   │   │   └── [...nextauth]/
-│   │   │       └── route.ts        ← NextAuth handler
+│   │   │       └── route.ts           ← NextAuth handler
 │   │   ├── register/
 │   │   │   └── route.ts
 │   │   ├── verify-email/
@@ -39,32 +51,38 @@ securegate/
 │   │   │   └── route.ts
 │   │   └── reset-password/
 │   │       └── route.ts
-│   ├── layout.tsx                  ← Root layout
-│   └── globals.css
+│   ├── layout.tsx                     ← Root layout
+│   ├── globals.css
+│   ├── error.tsx                      ← Error boundary
+│   └── loading.tsx                    ← Loading state
 ├── components/
-│   ├── ui/                         ← Primitive UI components (Button, Input, etc.)
-│   ├── forms/                      ← Form-level components (LoginForm, SignUpForm, etc.)
-│   └── shared/                     ← Shared layout pieces (Logo, PageWrapper, etc.)
-├── emails/                         ← React Email templates
+│   ├── ui/                            ← Primitive UI components (Button, Input, etc.)
+│   ├── forms/                         ← Form-level components (LoginForm, SignUpForm, etc.)
+│   └── shared/                        ← Shared layout pieces (Logo, PageWrapper, etc.)
+├── emails/                            ← React Email templates
 │   ├── VerificationEmail.tsx
 │   ├── PasswordResetEmail.tsx
 │   └── WelcomeEmail.tsx
 ├── lib/
-│   ├── auth.ts                     ← NextAuth config
-│   ├── db.ts                       ← Prisma client singleton
-│   ├── email.ts                    ← Resend send helper
-│   ├── tokens.ts                   ← Token generation & validation
-│   ├── rate-limit.ts               ← Upstash rate limiter instance
+│   ├── auth.ts                        ← NextAuth config
+│   ├── cn.ts                          ← Classname merge utility (clsx)
+│   ├── db.ts                          ← Prisma client singleton
+│   ├── email.ts                       ← Resend send helper
+│   ├── tokens.ts                      ← Token generation & validation
+│   ├── rate-limit.ts                  ← Upstash rate limiter instance
 │   └── validations/
-│       ├── auth.ts                 ← Zod schemas for auth forms
-│       └── password.ts             ← Password strength rules
-├── middleware.ts                   ← Route protection & rate limiting
+│       ├── auth.ts                    ← Zod schemas for auth forms
+│       └── password.ts                ← Password strength rules
+├── middleware.ts                      ← Route protection & rate limiting
+├── auth.config.ts                     ← NextAuth base config
 ├── prisma/
 │   ├── schema.prisma
 │   └── migrations/
-├── .agents/
-│   └── rules/
-└── skills/
+├── public/                            ← Static assets
+├── package.json
+├── tsconfig.json
+└── next.config.mjs
+└── tokens/                                ← Design tokens (CSS custom properties)
 ```
 
 ---
@@ -80,7 +98,7 @@ securegate/
 
 ## Middleware
 
-`middleware.ts` at the project root handles:
+`middleware.ts` handles:
 
 1. **Authentication guard** — redirect unauthenticated users from protected routes to `/login`
 2. **Verification guard** — redirect unverified users from the dashboard to `/verify-email`
@@ -102,6 +120,7 @@ export const config = {
 | File              | Responsibility                                              |
 |-------------------|-------------------------------------------------------------|
 | `auth.ts`         | NextAuth configuration — providers, callbacks, adapter      |
+| `cn.ts`           | Classname merge utility (`clsx` + `tailwind-merge`)         |
 | `db.ts`           | Single Prisma client instance (singleton pattern)           |
 | `email.ts`        | Wraps Resend — exposes typed `sendEmail()` function         |
 | `tokens.ts`       | `generateToken()`, `validateToken()`, `deleteToken()`       |
@@ -128,7 +147,7 @@ through `lib/db.ts`.
 
 ## Import Rules
 
-- Use absolute imports via `@/` alias (configured in `tsconfig.json`)
+- Use absolute imports via `@/` alias (configured in `tsconfig.json`, mapped to `./*`)
 - Never use relative `../../../` paths more than one level deep
 - Group imports: external packages → internal `@/lib` → internal `@/components`
 
@@ -145,7 +164,7 @@ import { db } from "../../../lib/db";
 
 ## What Agents Must Never Do
 
-- Create files outside the defined structure without documenting why
-- Add new top-level folders without updating `AGENTS.md`
+- Create files outside the directories listed in the architecture tree
+- Add new top-level folders without updating both `AGENTS.md` and this file
 - Import Prisma directly in components or page files
 - Put sensitive logic in client components (`"use client"`)

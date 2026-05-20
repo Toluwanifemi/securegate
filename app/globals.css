@@ -1,0 +1,48 @@
+@import "../tokens/design-tokens.css";
+
+/* Base Resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--typo-body-large-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--typo-body-large-font-size);
+  font-weight: var(--typo-body-large-font-weight);
+  line-height: var(--typo-body-large-line-height);
+  letter-spacing: var(--typo-body-large-letter-spacing);
+  min-height: 100vh;
+}
+
+/* Heading Typography */
+h1 {
+  font-family: var(--typo-headline-large-font-family);
+  font-size: var(--typo-headline-large-font-size);
+  font-weight: var(--typo-headline-large-font-weight);
+  line-height: var(--typo-headline-large-line-height);
+  letter-spacing: var(--typo-headline-large-letter-spacing);
+}
+
+h2 {
+  font-family: var(--typo-headline-medium-font-family);
+  font-size: var(--typo-headline-medium-font-size);
+  font-weight: var(--typo-headline-medium-font-weight);
+  line-height: var(--typo-headline-medium-line-height);
+  letter-spacing: var(--typo-headline-medium-letter-spacing);
+}
+
+h3 {
+  font-family: var(--typo-title-large-font-family);
+  font-size: var(--typo-title-large-font-size);
+  font-weight: var(--typo-title-large-font-weight);
+  line-height: var(--typo-title-large-line-height);
+  letter-spacing: var(--typo-title-large-letter-spacing);
+}

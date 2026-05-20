@@ -1,0 +1,229 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  background: radial-gradient(circle at 50% -20%, rgba(98, 0, 238, 0.08) 0%, transparent 60%),
+              var(--color-background);
+}
+
+.header {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 0 32px;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  font-size: 24px;
+}
+
+.logoText {
+  font-family: var(--typo-title-large-font-family);
+  font-size: var(--typo-title-large-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.headerActions {
+  display: flex;
+  gap: 16px;
+}
+
+.navLink {
+  font-family: var(--typo-label-large-font-family);
+  font-size: var(--typo-label-large-font-size);
+  color: var(--color-on-surface);
+  text-decoration: none;
+  opacity: 0.8;
+  font-weight: 500;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.navLink:hover {
+  opacity: 1;
+}
+
+.heroSection {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 16px; /* Spacing scale */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .heroSection {
+    padding: 80px 32px; /* Spacing scale */
+  }
+}
+
+.heroContent {
+  max-width: 800px;
+  margin-bottom: 64px; /* Spacing scale */
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border-radius: 9999px;
+  font-family: var(--typo-label-medium-font-family);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+.heroTitle {
+  font-family: var(--typo-display-medium-font-family);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -1.5px;
+  color: var(--color-on-surface);
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .heroTitle {
+    font-size: 48px;
+  }
+}
+
+.heroSubtitle {
+  font-family: var(--typo-body-large-font-family);
+  font-size: var(--typo-body-large-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.7;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.ctaContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .ctaContainer {
+    flex-direction: row;
+    gap: 16px;
+  }
+}
+
+.ctaLink {
+  text-decoration: none;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .ctaLink {
+    width: auto;
+  }
+}
+
+.ctaButton {
+  width: 100%;
+}
+
+/* Features Grid */
+.featuresSection {
+  width: 100%;
+  border-top: 1px solid var(--color-outline);
+  padding-top: 48px; /* Spacing scale */
+}
+
+.sectionTitle {
+  font-family: var(--typo-headline-medium-font-family);
+  font-size: var(--typo-headline-medium-font-size);
+  color: var(--color-on-surface);
+  margin-bottom: 32px;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px; /* Spacing scale */
+}
+
+@media (min-width: 768px) {
+  .featuresGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.featureCard {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  padding: 24px; /* Spacing scale */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.featureIcon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.featureTitle {
+  font-family: var(--typo-title-large-font-family);
+  font-size: var(--typo-title-large-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-bottom: 12px;
+}
+
+.featureText {
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.footer {
+  height: 64px;
+  border-top: 1px solid var(--color-outline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+}
+
+.footerText {
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.5;
+}

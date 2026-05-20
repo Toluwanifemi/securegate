@@ -1,195 +1,112 @@
-# Design System Rules
+# Rule: Design System
 
-## Purpose
+## Token File Is the Source of Truth
 
-These rules define how every UI component in SecureGate looks and behaves.
-The design language is **flat** — clean layouts, solid colours, precise spacing,
-no shadows, no gradients, no skeuomorphic elements.
+The project has one design token file. Never modify it:
 
----
+- `tokens/design-tokens.css` — all color values, typography (font sizes, weights, line heights, font families)
 
-## Design Principles
-
-| Principle       | Description                                                             |
-|-----------------|-------------------------------------------------------------------------|
-| Flat            | No box shadows, no gradients, no blurs on UI surfaces                   |
-| Purposeful      | Every element earns its place — no decorative noise                     |
-| Readable        | High contrast text, adequate font sizes, generous line height            |
-| Accessible      | WCAG AA as a minimum target on all interactive elements                  |
-| Consistent      | Use design tokens — never hardcode colour hex values in components       |
-
----
-
-## Colour Tokens
-
-Define these in `globals.css` using CSS custom properties.
-Reference them in Tailwind config via `extend.colors`.
+The token file exports CSS custom properties (CSS variables) available globally.
+Import it into your app's root layout from `securegate-temp/`:
 
 ```css
-:root {
-  /* Brand */
-  --color-primary:        #1a1a2e;  /* Deep navy — primary actions */
-  --color-primary-hover:  #16213e;  /* Darker navy on hover */
-  --color-accent:         #0f3460;  /* Mid navy — links, focus rings */
+/* securegate-temp/app/globals.css */
+@import "../../../tokens/design-tokens.css";
+```
 
-  /* Surface */
-  --color-bg:             #ffffff;  /* Page background */
-  --color-surface:        #f5f5f5;  /* Card / input background */
-  --color-border:         #e0e0e0;  /* Borders and dividers */
+The `tokens/` directory also contains:
+- `design-tokens.tokens.json` — Figma-compatible source (used by `convert-tokens.js`)
+- `colour-token.json` — raw colour palette with light/dark role mappings
+- `convert-tokens.js` — script that compiles source JSON into `design-tokens.css`
 
-  /* Text */
-  --color-text-primary:   #111111;  /* Body text */
-  --color-text-secondary: #555555;  /* Supporting text, labels */
-  --color-text-muted:     #999999;  /* Placeholder, disabled */
+Edit the `.json` sources and re-run `convert-tokens.js`; never edit `design-tokens.css` directly.
 
-  /* Feedback */
-  --color-success:        #16a34a;  /* Green — verified, success states */
-  --color-warning:        #d97706;  /* Amber — warnings */
-  --color-error:          #dc2626;  /* Red — errors, destructive actions */
-  --color-info:           #2563eb;  /* Blue — informational messages */
+## Mandatory: Use CSS Variables, Never Raw Values
+
+Never write hardcoded color values or typography values anywhere in this codebase.
+
+**Wrong:**
+```css
+color: #1a1a1a;
+font-size: 16px;
+font-family: 'Inter', sans-serif;
+background: #f5f5f5;
+```
+
+**Correct:**
+```css
+color: var(--color-on-surface);
+font-size: var(--typo-body-large-font-size);
+font-family: var(--typo-body-large-font-family);
+background: var(--color-surface);
+```
+
+Before writing any style value, check the token file. If a variable exists for what you need, use it. If it does not exist, ask before inventing a new value.
+
+## Available Color Tokens
+
+Use these patterns for colors:
+- `--color-primary` / `--color-on-primary` — main brand color
+- `--color-surface` — card/background surfaces
+- `--color-background` — page background
+- `--color-error` — error states
+- `--color-outline` — borders
+- `--color-on-surface` / `--color-on-background` — text on surfaces
+
+For dark theme support, wrap dark overrides in a `[data-theme="dark"]` rule:
+
+```css
+.card {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+[data-theme="dark"] .card {
+  background: var(--color-surface-dim);
+  /* most tokens switch automatically via the theme block in design-tokens.css */
 }
 ```
 
----
+## Available Typography Tokens
 
-## Typography
+Use these patterns for typography:
+- `--typo-display-large-*` — hero text
+- `--typo-headline-large-*` — section headers
+- `--typo-title-large-*` — card titles
+- `--typo-body-large-*` — main body text
+- `--typo-body-medium-*` — secondary body text
+- `--typo-label-large-*` — buttons, links
 
-- **Font family:** System font stack — no web font imports (performance first)
-- **Base size:** 16px
-- **Scale:** Use Tailwind's default scale (`text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`)
+Each includes: `font-size`, `font-family`, `font-weight`, `letter-spacing`, `line-height`.
 
-| Role             | Class                          |
-|------------------|--------------------------------|
-| Page heading     | `text-2xl font-semibold`       |
-| Section heading  | `text-lg font-medium`          |
-| Body text        | `text-base font-normal`        |
-| Supporting text  | `text-sm text-[--color-text-secondary]` |
-| Error text       | `text-sm text-[--color-error]` |
-| Label            | `text-sm font-medium`          |
+## Spacing Scale
 
----
+Use multiples of 4px for all spacing (margin, padding, gap). Do not use arbitrary values.
 
-## Spacing
+Allowed: `4px`, `8px`, `12px`, `16px`, `24px`, `32px`, `48px`, `64px`
 
-Use Tailwind spacing utilities. Do not use arbitrary values unless unavoidable.
+## Border Radius
 
-| Use               | Value     |
-|-------------------|-----------|
-| Between sections  | `gap-8`   |
-| Between elements  | `gap-4`   |
-| Inside components | `gap-2`   |
-| Page padding      | `p-6`     |
-| Form padding      | `p-8`     |
+Use these values consistently. They are defined as CSS variables in `tokens/design-tokens.css`
+so they remain a single source of truth:
+- Small elements (badges, tags): `var(--radius-sm)` → `4px`
+- Buttons and inputs: `var(--radius-md)` → `8px`
+- Cards and modals: `var(--radius-lg)` → `12px`
 
----
+These variables are declared in the token file. If you need a new radius, add it to
+`tokens/design-tokens.css` (and `design-tokens.tokens.json` if the file is auto-generated).
 
-## Component Patterns
+## Styling Method
 
-### Input Fields
+- All component styles use CSS Modules (`.module.css` files).
+- No inline `style={{}}` props except for truly dynamic values that cannot be expressed in CSS (e.g., a progress bar width driven by a number).
+- No Tailwind. No styled-components. CSS Modules only.
 
-```tsx
-<div className="flex flex-col gap-1.5">
-  <label htmlFor="email" className="text-sm font-medium">
-    Email address
-  </label>
-  <input
-    id="email"
-    type="email"
-    placeholder="you@example.com"
-    className="w-full rounded border border-[--color-border] bg-[--color-surface]
-               px-3 py-2 text-base text-[--color-text-primary]
-               placeholder:text-[--color-text-muted]
-               focus:border-[--color-accent] focus:outline-none focus:ring-2
-               focus:ring-[--color-accent]/20"
-  />
-  {error && (
-    <p className="text-sm text-[--color-error]">{error}</p>
-  )}
-</div>
-```
+## Mobile-First
 
-### Primary Button
+Every component must be built mobile-first:
 
-```tsx
-<button
-  type="submit"
-  className="w-full rounded bg-[--color-primary] px-4 py-2.5
-             text-base font-medium text-white
-             hover:bg-[--color-primary-hover]
-             focus:outline-none focus:ring-2 focus:ring-[--color-accent]/40
-             disabled:cursor-not-allowed disabled:opacity-50
-             transition-colors duration-150"
->
-  Continue
-</button>
-```
-
-### Auth Page Card
-
-All auth pages use a centred card layout:
-
-```tsx
-<main className="flex min-h-screen items-center justify-center bg-[--color-bg] p-4">
-  <div className="w-full max-w-md rounded border border-[--color-border]
-                  bg-[--color-bg] p-8">
-    {/* Page heading, form, links */}
-  </div>
-</main>
-```
-
-### Inline Feedback (Error / Success)
-
-```tsx
-/* Error */
-<div className="rounded border border-[--color-error]/30
-                bg-[--color-error]/5 px-4 py-3">
-  <p className="text-sm text-[--color-error]">{message}</p>
-</div>
-
-/* Success */
-<div className="rounded border border-[--color-success]/30
-                bg-[--color-success]/5 px-4 py-3">
-  <p className="text-sm text-[--color-success]">{message}</p>
-</div>
-```
-
-### Password Strength Indicator
-
-Displayed below the password field during sign up.
-
-```tsx
-<div className="flex gap-1 mt-1.5">
-  {[1, 2, 3, 4].map((level) => (
-    <div
-      key={level}
-      className={cn(
-        "h-1 flex-1 rounded-full transition-colors duration-200",
-        strength >= level ? strengthColour(strength) : "bg-[--color-border]"
-      )}
-    />
-  ))}
-</div>
-<p className="text-xs text-[--color-text-secondary] mt-1">{strengthLabel}</p>
-```
-
-Strength colours: `bg-[--color-error]` (1) → `bg-[--color-warning]` (2-3) → `bg-[--color-success]` (4)
-
----
-
-## Accessibility Rules
-
-- Every `<input>` must have an associated `<label>` via `htmlFor` / `id`
-- Every interactive element must have a visible focus ring
-- Colour alone must never be the only way to communicate state (pair colour with text or icon)
-- Error messages must be linked to their field via `aria-describedby`
-- Buttons must never be disabled without an explanation visible to the user
-
----
-
-## What Agents Must Never Do
-
-- Add `box-shadow` or `drop-shadow` to cards, inputs, or buttons
-- Use gradients on UI surfaces (decorative gradients on illustration-only elements are acceptable)
-- Hardcode hex values in component files — always reference a token
-- Build components without accessibility attributes
-- Override the spacing scale with arbitrary Tailwind values unless there is no other option
+- Default styles target mobile (small screens).
+- Use `@media (min-width: 768px)` to layer in desktop styles.
+- Touch targets must be a minimum of 44px tall.
+- Every page must be fully functional on a 375px viewport — test all forms and navigation at that width.

@@ -1,0 +1,167 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.button {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Alert Boxes */
+.alert {
+  padding: 12px 16px;
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  line-height: var(--typo-body-medium-line-height);
+  text-align: left;
+}
+
+/* Success View */
+.successContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px; /* Spacing scale */
+}
+
+.successIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.successTitle {
+  font-family: var(--typo-headline-small-font-family);
+  font-size: var(--typo-headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin-bottom: 12px;
+}
+
+.successText {
+  font-family: var(--typo-body-large-font-family);
+  font-size: var(--typo-body-large-font-size);
+  color: var(--color-on-surface);
+  opacity: 0.8;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.successHint {
+  font-family: var(--typo-body-medium-font-family);
+  font-size: var(--typo-body-medium-font-size);
+  color: var(--color-outline);
+  line-height: 1.5;
+}
+
+/* Password Strength Indicator styling */
+.strengthContainer {
+  margin-top: -8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.strengthHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-family: var(--typo-body-small-font-family);
+  font-size: var(--typo-body-small-font-size);
+}
+
+.strengthText {
+  color: var(--color-on-surface);
+  opacity: 0.8;
+}
+
+.strengthWeak {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.strengthMedium {
+  color: #d97706; /* MD3 standard warning yellow-orange */
+  font-weight: 600;
+}
+
+.strengthStrong {
+  color: #16a34a; /* MD3 success green */
+  font-weight: 600;
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-surface-container-highest);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.progressBarFill.strengthWeak {
+  background-color: var(--color-error);
+}
+
+.progressBarFill.strengthMedium {
+  background-color: #d97706;
+}
+
+.progressBarFill.strengthStrong {
+  background-color: #16a34a;
+}
+
+/* Requirements list */
+.criteriaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .criteriaList {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.criteriaList li {
+  font-family: var(--typo-body-small-font-family);
+  font-size: var(--typo-body-small-font-size);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.criteriaCheck {
+  color: #16a34a;
+  opacity: 1;
+}
+
+.criteriaCheck::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+.criteriaCross {
+  color: var(--color-outline);
+  opacity: 0.7;
+}
+
+.criteriaCross::before {
+  content: "○";
+}
