@@ -1,7 +1,10 @@
 export function validateCsrf(req: Request): boolean {
   const origin = req.headers.get("origin");
   const referer = req.headers.get("referer");
-  const host = req.headers.get("host") || req.headers.get("x-forwarded-host");
+  
+  // Align strictly with security.md rules: use Host header, or X-Forwarded-Host only if explicitly trusted
+  const trustProxy = process.env.TRUST_PROXY === "true";
+  const host = req.headers.get("host") || (trustProxy ? req.headers.get("x-forwarded-host") : null);
 
   if (!host) return false;
 

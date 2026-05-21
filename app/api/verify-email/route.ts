@@ -45,15 +45,20 @@ export async function POST(req: Request) {
       where: { email: tokenEntry.identifier },
     });
 
-    // Mark user email as verified
-    await db.user.update({
-      where: { email: tokenEntry.identifier },
-      data: {
-        emailVerified: new Date(),
-      },
-    });
+    // Mark user email as verified and delete token in an atomic transaction (replay protection)
+    await db.$transaction([
+      db.user.update({
+        where: { email: tokenEntry.identifier },
+        data: {
+          emailVerified: new Date(),
+        },
+      }),
+      db.emailVerificationToken.delete({
+        where: { token: tokenEntry.token },
+      }),
+    ]);
 
-    // Send welcome email BEFORE deleting token (if welcome email fails, token still exists for retry)
+    // Send welcome email after verification transaction completes
     if (user) {
       const loginUrl = `${process.env.NEXTAUTH_URL}/auth?mode=login`;
       try {
@@ -69,13 +74,6 @@ export async function POST(req: Request) {
         console.error("[VERIFY_EMAIL] Welcome email failed, but verification succeeded", emailErr);
       }
     }
-
-    // Delete token after side-effects succeed (replay attack mitigation)
-    await db.emailVerificationToken.delete({
-      where: { token: tokenEntry.token },
-    }).catch((err) => {
-      console.error("[VERIFY_EMAIL] Failed to delete token", err);
-    });
 
     return NextResponse.json({ message: "Email verified successfully." });
   } catch (error) {

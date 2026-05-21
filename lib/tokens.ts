@@ -25,9 +25,14 @@ export async function generateEmailVerificationToken(identifier: string) {
   const hashed = hashToken(token);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-  // Delete existing verification tokens for this identifier to avoid database bloat
+  // Delete existing verification tokens for this identifier AND all expired tokens database-wide to avoid bloat
   await db.emailVerificationToken.deleteMany({
-    where: { identifier },
+    where: {
+      OR: [
+        { identifier },
+        { expires: { lt: new Date() } }
+      ]
+    },
   });
 
   const emailVerificationToken = await db.emailVerificationToken.create({
@@ -51,9 +56,14 @@ export async function generatePasswordResetToken(email: string) {
   const hashed = hashToken(token);
   const expires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
 
-  // Delete existing reset tokens for this email
+  // Delete existing reset tokens for this email AND all expired tokens database-wide to avoid bloat
   await db.passwordResetToken.deleteMany({
-    where: { email },
+    where: {
+      OR: [
+        { email },
+        { expires: { lt: new Date() } }
+      ]
+    },
   });
 
   const passwordResetToken = await db.passwordResetToken.create({

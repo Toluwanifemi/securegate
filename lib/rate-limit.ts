@@ -44,6 +44,24 @@ if (hasUpstashConfig) {
 } else {
   // In-memory rate limiting fallback for local development
   const localCache = new Map<string, { count: number; reset: number }>();
+  const MAX_CACHE_SIZE = 1000;
+
+  // Periodically clean up expired entries from memory to prevent memory leaks
+  if (typeof window === "undefined") {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      localCache.forEach((record, key) => {
+        if (now > record.reset) {
+          localCache.delete(key);
+        }
+      });
+    }, 60 * 1000); // Check every minute
+    
+    // Allow Node.js process to exit even if this interval is active
+    if (interval && typeof interval.unref === "function") {
+      interval.unref();
+    }
+  }
 
   ratelimit = {
     limit: async (key: string) => {
@@ -53,7 +71,22 @@ if (hasUpstashConfig) {
 
       const record = localCache.get(key);
 
-      if (!record || now > record.reset) {
+      // Clean up if expired
+      if (record && now > record.reset) {
+        localCache.delete(key);
+      }
+
+      const freshRecord = localCache.get(key);
+
+      if (!freshRecord) {
+        // Enforce maximum cache size to prevent OOM
+        if (localCache.size >= MAX_CACHE_SIZE) {
+          const oldestKey = localCache.keys().next().value;
+          if (oldestKey !== undefined) {
+            localCache.delete(oldestKey);
+          }
+        }
+
         const newRecord = { count: 1, reset: now + windowMs };
         localCache.set(key, newRecord);
         return {
@@ -64,28 +97,28 @@ if (hasUpstashConfig) {
         };
       }
 
-      if (record.count >= limitCount) {
+      if (freshRecord.count >= limitCount) {
         return {
           success: false,
           limit: limitCount,
           remaining: 0,
-          reset: record.reset,
+          reset: freshRecord.reset,
         };
       }
 
-      record.count += 1;
+      freshRecord.count += 1;
       return {
         success: true,
         limit: limitCount,
-        remaining: limitCount - record.count,
-        reset: record.reset,
+        remaining: limitCount - freshRecord.count,
+        reset: freshRecord.reset,
       };
     },
   };
 
   console.warn(
     "[RATE_LIMIT] Upstash Redis credentials not configured. Using in-memory fallback rate limiter " +
-    "(not shared across multiple server instances)."
+    "(with memory leak eviction policy; not shared across multiple server instances)."
   );
 }
 

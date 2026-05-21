@@ -1,12 +1,5 @@
 import { z } from "zod";
 
-// Regular expressions to check individual password components
-export const passwordStrengthRegex = {
-  hasLowercase: /[a-z]/,
-  hasUppercase: /[A-Z]/,
-  hasNumber: /[0-9]/,
-  hasSymbol: /[^A-Za-z0-9]/,
-};
 
 // Complete combined password schema — NIST SP 800-63B aligned
 // Focus on length, not composition rules

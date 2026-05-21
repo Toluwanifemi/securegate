@@ -55,20 +55,18 @@ export async function POST(req: Request) {
     // Hash new password with SHA-256 pre-hash + bcrypt (eliminates 72-byte truncation)
     const hashedPassword = await hashPassword(password);
 
-    // Update user password
-    await db.user.update({
-      where: { email: tokenEntry.email },
-      data: {
-        password: hashedPassword,
-      },
-    });
-
-    // Delete reset token immediately to prevent reuse (replay attack mitigation)
-    await db.passwordResetToken.delete({
-      where: { token: tokenEntry.token },
-    }).catch((err) => {
-      console.error("[RESET_PASSWORD] Failed to delete token", err);
-    });
+    // Update user password and delete reset token in an atomic transaction (replay protection)
+    await db.$transaction([
+      db.user.update({
+        where: { email: tokenEntry.email },
+        data: {
+          password: hashedPassword,
+        },
+      }),
+      db.passwordResetToken.delete({
+        where: { token: tokenEntry.token },
+      }),
+    ]);
 
     return NextResponse.json({ message: "Password reset completed successfully." });
   } catch (error) {

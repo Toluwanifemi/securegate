@@ -24,12 +24,19 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // 2. If logged in, redirect active sessions away from auth entry forms
+  // 2. If logged in, redirect active sessions away from auth entry forms (only if they are verified)
   if (isLoggedIn && (nextUrl.pathname === "/auth" || nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
     const mode = nextUrl.searchParams.get("mode");
     if (mode === "reset-password" || mode === "forgot-password" || mode === "verify-email") {
       return NextResponse.next();
     }
+    
+    // Unverified users are allowed to access auth entry forms to switch accounts
+    const isVerified = (req.auth?.user as any)?.emailVerified;
+    if (!isVerified) {
+      return NextResponse.next();
+    }
+
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
@@ -43,11 +50,11 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(`/auth?mode=login&callbackUrl=${encodedCallbackUrl}`, nextUrl));
   }
 
-  // 4. Verification guard: If logged in but unverified, block dashboard access and redirect to notice page
+  // 4. Verification guard: If logged in but unverified, block dashboard access and redirect to create account page
   if (isLoggedIn && !isPublicRoute) {
     const isVerified = (req.auth?.user as any)?.emailVerified;
     if (!isVerified && nextUrl.pathname !== "/verify-email" && nextUrl.pathname !== "/auth") {
-      return NextResponse.redirect(new URL("/auth?mode=verify-email", nextUrl));
+      return NextResponse.redirect(new URL("/auth?mode=register", nextUrl));
     }
   }
 
