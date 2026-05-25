@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { validateEmailVerificationToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
@@ -77,6 +78,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Email verified successfully." });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json({ message: "User not found or token already used." }, { status: 400 });
+      }
+    }
     console.error("[VERIFY_EMAIL_UNEXPECTED_ERROR]", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }

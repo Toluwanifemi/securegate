@@ -23,6 +23,15 @@ Code reference: app/login/page.tsx
 My Answer: In the login form, i used a call back URL to redirect after login without proper search query.
 What goes wrong if ignored: a phisher could inject another URL and a user will be redirected to the wrong platform
 
+### Q2 Law of leaky abstractions
+
+Code Reference: app\api\register\route.ts line 102ff
+When two users try to register with the same email at the same time, a race condition occurs. My code first checks if the email exists (findUnique), then tries to create the user. Between those two steps, another request might slip in. Prisma correctly throws a P2002 Unique Constraint error, but my code catches it and responds with a generic 500 Internal Server Error. That makes it look like the system crashed, when in reality, it is a duplicate email.
+
+### Q3 YAGNI
+Code Reference:
+I had an unused CSS module boilerplate 
+What goes wrong if ignored: It adds clusters and increases the build size of my app
 
 
 

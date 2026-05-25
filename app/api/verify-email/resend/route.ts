@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { generateEmailVerificationToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
@@ -69,6 +70,13 @@ export async function POST(req: Request) {
       message: "If an account exists with this email, a verification link has been sent.",
     });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return NextResponse.json({
+          message: "If an account exists with this email, a verification link has been sent.",
+        });
+      }
+    }
     console.error("[RESEND_VERIFY_UNEXPECTED_ERROR]", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }

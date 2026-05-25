@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { SignUpSchema } from "@/lib/validations/auth";
 import { generateEmailVerificationToken } from "@/lib/tokens";
@@ -101,6 +102,14 @@ export async function POST(req: Request) {
       message: "Registration completed. If your email is valid, a verification link has been sent.",
     });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        // Prevent email enumeration on race condition collisions
+        return NextResponse.json({
+          message: "Registration completed. If your email is valid, a verification link has been sent.",
+        });
+      }
+    }
     console.error("[REGISTER_UNEXPECTED_ERROR]", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }

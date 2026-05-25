@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { ResetPasswordSchema } from "@/lib/validations/auth";
 import { validatePasswordResetToken } from "@/lib/tokens";
@@ -70,6 +71,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Password reset completed successfully." });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json({ message: "User not found or token already used." }, { status: 400 });
+      }
+    }
     console.error("[RESET_PASSWORD_UNEXPECTED_ERROR]", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
