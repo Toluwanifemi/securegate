@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { PasswordStrengthIndicator } from "@/components/ui/PasswordStrengthIndicator";
 import { SignUpSchema } from "@/lib/validations/auth";
 
 import styles from "./SignUpForm.module.css";
@@ -14,19 +15,6 @@ export function SignUpForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [errors, setErrors] = React.useState<{ name?: string; email?: string; password?: string; form?: string }>({});
-
-  // Password strength indicator based on length (NIST SP 800-63B)
-  const lengthProgress = Math.min(password.length / 8, 1);
-  
-  let strengthLabel = "Weak";
-  let strengthClass = styles.strengthWeak;
-  if (password.length >= 8 && password.length < 12) {
-    strengthLabel = "Medium";
-    strengthClass = styles.strengthMedium;
-  } else if (password.length >= 12) {
-    strengthLabel = "Strong";
-    strengthClass = styles.strengthStrong;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +77,16 @@ export function SignUpForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form} noValidate>
+    <div className={styles.wrapper}>
+      <div className={styles.header}>
+        <a href="/" className={styles.logoLink} aria-label="Go to home page">
+          <span className={styles.logo} aria-hidden="true">🔐</span>
+        </a>
+        <h1 className={styles.title}>Create your account</h1>
+        <p className={styles.subtitle}>Get started with SecureGate auth</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className={styles.form} noValidate>
       {errors.form && (
         <div className={styles.alert} role="alert">
           {errors.form}
@@ -132,32 +129,13 @@ export function SignUpForm() {
         required
       />
 
-      {/* Password Strength Indicator */}
-      {password.length > 0 && (
-        <div className={styles.strengthContainer}>
-          <div className={styles.strengthHeader}>
-            <span className={styles.strengthText}>Password Strength:</span>
-            <span className={strengthClass}>{strengthLabel}</span>
-          </div>
-          <div className={styles.progressBarBg}>
-            <div
-              className={`${styles.progressBarFill} ${strengthClass}`}
-              style={{ width: `${lengthProgress * 100}%` }}
-            />
-          </div>
-          
-          <ul className={styles.criteriaList} aria-label="Password requirements">
-            <li className={password.length >= 8 ? styles.criteriaCheck : styles.criteriaCross}>
-              At least 8 characters
-            </li>
-          </ul>
-        </div>
-      )}
+      <PasswordStrengthIndicator password={password} />
 
       <Button type="submit" className={styles.button} isLoading={isLoading}>
         Create Account
       </Button>
     </form>
+    </div>
   );
 }
 

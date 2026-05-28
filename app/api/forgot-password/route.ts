@@ -38,11 +38,10 @@ export async function POST(req: Request) {
     }
 
     const { email } = result.data;
-    const normalizedEmail = email.toLowerCase().trim();
 
     // Look up the user
     const user = await db.user.findUnique({
-      where: { email: normalizedEmail },
+      where: { email },
     });
 
     // Return the exact same response regardless of existence to prevent enumeration (OWASP)

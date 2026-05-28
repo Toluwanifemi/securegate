@@ -39,11 +39,10 @@ export async function POST(req: Request) {
     }
 
     const { name, email, password } = result.data;
-    const normalizedEmail = email.toLowerCase().trim();
 
     // Check if user already exists
     const existingUser = await db.user.findUnique({
-      where: { email: normalizedEmail },
+      where: { email },
     });
 
     if (existingUser) {
@@ -53,7 +52,7 @@ export async function POST(req: Request) {
         const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
         
         await sendEmail({
-          to: normalizedEmail,
+          to: email,
           subject: "Verify your SecureGate account",
           template: React.createElement(VerificationEmail, {
             name: existingUser.name || name,
@@ -75,7 +74,7 @@ export async function POST(req: Request) {
     const newUser = await db.user.create({
       data: {
         name: name.trim(),
-        email: normalizedEmail,
+        email,
         password: hashedPassword,
       },
     });

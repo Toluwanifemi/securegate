@@ -82,14 +82,14 @@
 }
 
 .link {
-  color: var(--color-primary);
+  color: var(--color-on-surface-variant);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease-in-out;
 }
 
 .link:hover {
-  color: var(--color-primary-container);
+  color: var(--color-primary);
   text-decoration: underline;
 }
 

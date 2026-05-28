@@ -29,9 +29,9 @@ function AuthContent() {
       ),
     },
     register: {
-      title: "Create your account",
-      subtitle: "Get started with SecureGate auth",
-      logo: "🔐",
+      title: "",
+      subtitle: "",
+      logo: "",
       footer: (
         <p className={styles.footerText}>
           Already have an account?{" "}
@@ -56,8 +56,8 @@ function AuthContent() {
       ),
     },
     "verify-email": {
-      title: "Verify your email",
-      subtitle: "Confirm your email address",
+      title: "",
+      subtitle: "",
       logo: "✉️",
       footer: (
         <Link href="/auth?mode=login" className={styles.link}>Back to Log In</Link>
@@ -93,11 +93,13 @@ function AuthContent() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <Link href="/" className={styles.logoLink} aria-label="Go to home page">
-            <span className={styles.logo}>{current.logo}</span>
-          </Link>
-          <h1 className={styles.title}>{current.title}</h1>
-          <p className={styles.subtitle}>{current.subtitle}</p>
+          {current.logo && (
+            <Link href="/" className={styles.logoLink} aria-label="Go to home page">
+              <span className={styles.logo}>{current.logo}</span>
+            </Link>
+          )}
+          {current.title && <h1 className={styles.title}>{current.title}</h1>}
+          {current.subtitle && <p className={styles.subtitle}>{current.subtitle}</p>}
         </div>
 
         {renderForm()}

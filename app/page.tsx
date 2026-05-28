@@ -30,7 +30,6 @@ export default async function LandingPage() {
 
       <main className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <span className={styles.badge}>PRODUCTION-READY AUTHENTICATION</span>
           <h1 className={styles.heroTitle}>
             Authentication You Control. Security You Can Trust
           </h1>

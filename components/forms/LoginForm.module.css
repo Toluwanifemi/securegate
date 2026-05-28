@@ -20,7 +20,6 @@
 }
 
 .link:hover {
-  color: var(--color-primary-container);
   text-decoration: underline;
 }
 

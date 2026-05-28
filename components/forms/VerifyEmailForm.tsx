@@ -136,6 +136,7 @@ export function VerifyEmailForm({ token }: VerifyEmailFormProps) {
 
       {!verifying && !token && (
         <div className={styles.center}>
+          <h1 className={styles.title}>Verify your email</h1>
           <p className={styles.subtitle}>
             Your account is registered but unverified. Please check your inbox for a verification email.
           </p>
