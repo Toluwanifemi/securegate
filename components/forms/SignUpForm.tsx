@@ -10,7 +10,9 @@ import styles from "./SignUpForm.module.css";
 
 export function SignUpForm() {
   const [name, setName] = React.useState("");
+  const [nameTouched, setNameTouched] = React.useState(false);
   const [email, setEmail] = React.useState("");
+  const [emailTouched, setEmailTouched] = React.useState(false);
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -99,6 +101,8 @@ export function SignUpForm() {
         placeholder="Jane Doe"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        onBlur={() => setNameTouched(true)}
+        className={nameTouched ? styles.nameDone : undefined}
         error={errors.name}
         disabled={isLoading}
         autoComplete="name"
@@ -111,6 +115,8 @@ export function SignUpForm() {
         placeholder="jane@example.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        onBlur={() => setEmailTouched(true)}
+        className={emailTouched ? styles.nameDone : undefined}
         error={errors.email}
         disabled={isLoading}
         autoComplete="email"

@@ -63,6 +63,7 @@
   font-size: var(--typo-body-small-font-size);
   font-weight: var(--typo-body-small-font-weight);
   line-height: var(--typo-body-small-line-height);
+  letter-spacing: var(--typo-body-small-letter-spacing);
   color: var(--color-error);
   margin-top: 6px;
   align-self: flex-start;

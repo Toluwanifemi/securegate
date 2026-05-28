@@ -44,6 +44,10 @@
   opacity: 0.6;
 }
 
+.nameDone {
+  background-color: var(--color-inverse-on-surface);
+}
+
 .form {
   display: flex;
   flex-direction: column;
