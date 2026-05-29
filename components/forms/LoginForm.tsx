@@ -46,6 +46,15 @@ export function LoginForm() {
     }
 
     try {
+      // 1. Check rate limit FIRST via custom API (NextAuth swallows specific error codes)
+      const rlRes = await fetch("/api/auth/rate-limit", { method: "POST" });
+      if (rlRes.status === 429) {
+        setErrors({ form: "Too many requests. Please try again later." });
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. If rate limit passes, call NextAuth
       const res = await signIn("credentials", {
         email,
         password,
@@ -53,23 +62,14 @@ export function LoginForm() {
       });
 
       if (res?.error) {
-        if (res.status === 429 || res.error.includes("429") || res.error.includes("Too many requests")) {
-          setErrors({ form: "Too many requests. Please try again later." });
-        } else {
-          // Safe, non-revealing error message
-          setErrors({ form: "Invalid email or password. Please try again." });
-        }
+        setErrors({ form: "Invalid email or password. Please try again." });
         setIsLoading(false);
       } else {
         router.push(callbackUrl);
         router.refresh();
       }
     } catch (err: any) {
-      if (err?.message?.includes("429") || err?.status === 429) {
-        setErrors({ form: "Too many requests. Please try again later." });
-      } else {
-        setErrors({ form: "An unexpected error occurred. Please try again." });
-      }
+      setErrors({ form: "An unexpected error occurred. Please try again." });
       setIsLoading(false);
     }
   };

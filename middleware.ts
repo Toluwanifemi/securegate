@@ -22,18 +22,8 @@ export default auth(async (req) => {
     nextUrl.pathname === "/verify-email" ||
     nextUrl.pathname.startsWith("/api/"); // API endpoints are guarded separately
 
-  // 1. NextAuth internal routes require no intervention (except rate limiting signin)
+  // 1. NextAuth internal routes require no intervention (rate limiting is handled in auth.ts authorize callback)
   if (isApiAuthRoute) {
-    if (req.method === "POST" && nextUrl.pathname.includes("/api/auth/callback/credentials")) {
-      const ip = getClientIp(req);
-      const limitRes = await loginRateLimit.limit(`signin:${ip}`);
-      if (!limitRes.success) {
-        return NextResponse.json(
-          { message: "Too many requests. Please try again later." },
-          { status: 429 }
-        );
-      }
-    }
     return NextResponse.next();
   }
 
