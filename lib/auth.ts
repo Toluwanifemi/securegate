@@ -1,4 +1,4 @@
-import NextAuth, { CredentialsSignin } from "next-auth";
+import NextAuth from "next-auth";
 import type { DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
@@ -6,10 +6,6 @@ import { db } from "./db";
 import { LoginSchema } from "./validations/auth";
 import { verifyPassword } from "./password-hash";
 import { authConfig } from "@/auth.config";
-
-class RateLimitError extends CredentialsSignin {
-  code = "RateLimit";
-}
 
 declare module "next-auth" {
   interface Session {

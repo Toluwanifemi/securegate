@@ -68,7 +68,7 @@ export function LoginForm() {
         router.push(callbackUrl);
         router.refresh();
       }
-    } catch (err: any) {
+    } catch {
       setErrors({ form: "An unexpected error occurred. Please try again." });
       setIsLoading(false);
     }

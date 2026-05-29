@@ -12,7 +12,6 @@ export function SignUpForm() {
   const [name, setName] = React.useState("");
   const [nameTouched, setNameTouched] = React.useState(false);
   const [email, setEmail] = React.useState("");
-  const [emailTouched, setEmailTouched] = React.useState(false);
   const [password, setPassword] = React.useState("");
   const [passwordFocused, setPasswordFocused] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -32,7 +31,6 @@ export function SignUpForm() {
   };
 
   const handleEmailBlur = () => {
-    setEmailTouched(true);
     if (!email.trim()) {
       setErrors((prev) => ({ ...prev, email: "Enter a Valid Email Address" }));
     }
