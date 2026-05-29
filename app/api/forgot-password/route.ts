@@ -5,7 +5,7 @@ import { ForgotPasswordSchema } from "@/lib/validations/auth";
 import { generatePasswordResetToken, hashToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
 import { PasswordResetEmail } from "@/emails/PasswordResetEmail";
-import { ratelimit } from "@/lib/rate-limit";
+import { forgotPasswordRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 import { getClientIp } from "@/lib/ip";
 import * as React from "react";
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
   // Rate limiting check
   const ip = getClientIp(req);
-  const limitRes = await ratelimit.limit(`forgot-password:${ip}`);
+  const limitRes = await forgotPasswordRateLimit.limit(`forgot-password:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
       { message: "Too many requests. Please try again later." },
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
     // Generate secure password reset token
     const token = await generatePasswordResetToken(user.email);
-    const resetUrl = `${process.env.NEXTAUTH_URL}/auth?mode=reset-password&token=${token.token}`;
+    const resetUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=reset-password&token=${token.token}`;
 
     // Send reset email
     const emailResult = await sendEmail({

@@ -2,9 +2,12 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
+import { loginRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/ip";
+
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
@@ -19,8 +22,18 @@ export default auth((req) => {
     nextUrl.pathname === "/verify-email" ||
     nextUrl.pathname.startsWith("/api/"); // API endpoints are guarded separately
 
-  // 1. NextAuth internal routes require no intervention
+  // 1. NextAuth internal routes require no intervention (except rate limiting signin)
   if (isApiAuthRoute) {
+    if (req.method === "POST" && nextUrl.pathname.includes("/api/auth/callback/credentials")) {
+      const ip = getClientIp(req);
+      const limitRes = await loginRateLimit.limit(`signin:${ip}`);
+      if (!limitRes.success) {
+        return NextResponse.json(
+          { message: "Too many requests. Please try again later." },
+          { status: 429 }
+        );
+      }
+    }
     return NextResponse.next();
   }
 
@@ -63,5 +76,5 @@ export default auth((req) => {
 
 export const config = {
   // Catch all routes except next internals, assets, and standard favicons
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

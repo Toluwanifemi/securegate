@@ -25,18 +25,18 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model EmailVerificationToken {
+model VerificationToken {
   identifier String
   token      String   @id
   expires    DateTime
 
-  @@index([identifier])
+  @@unique([identifier, token])
 }
 
 model PasswordResetToken {
   email   String
-  token   String   @id
+  token   String   @unique
   expires DateTime
 
-  @@index([email])
+  @@id([email, token])
 }

@@ -5,14 +5,22 @@ import styles from "./PasswordStrengthIndicator.module.css";
 
 interface PasswordStrengthIndicatorProps {
   password: string;
+  isFocused?: boolean;
 }
 
-export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicatorProps) {
-  if (!password || password.length === 0) return null;
+const requirements = [
+  { label: "must contain an uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "must contain a lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { label: "must contain a number", test: (p: string) => /\d/.test(p) },
+  { label: "must contain a special character", test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+  { label: "minimum of 8 characters", test: (p: string) => p.length >= 8 },
+];
 
-  // Password strength indicator based on length (NIST SP 800-63B)
+export function PasswordStrengthIndicator({ password, isFocused }: PasswordStrengthIndicatorProps) {
+  if (!password && !isFocused) return null;
+
   const lengthProgress = Math.min(password.length / 8, 1);
-  
+
   let strengthLabel = "Weak";
   let strengthClass = styles.strengthWeak;
   if (password.length >= 8 && password.length < 12) {
@@ -22,6 +30,8 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
     strengthLabel = "Strong";
     strengthClass = styles.strengthStrong;
   }
+
+  const firstUnmet = requirements.find((r) => !r.test(password));
 
   return (
     <div className={styles.strengthContainer}>
@@ -35,12 +45,14 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
           style={{ width: `${lengthProgress * 100}%` }}
         />
       </div>
-      
-      <ul className={styles.criteriaList} aria-label="Password requirements">
-        <li className={password.length >= 8 ? styles.criteriaCheck : styles.criteriaCross}>
-          At least 8 characters
-        </li>
-      </ul>
+
+      {firstUnmet && (
+        <ul className={styles.criteriaList} aria-label="Password requirements">
+          <li className={styles.criteriaPending}>{firstUnmet.label}</li>
+        </ul>
+      )}
     </div>
   );
 }
+
+export default PasswordStrengthIndicator;

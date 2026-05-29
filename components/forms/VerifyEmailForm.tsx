@@ -22,8 +22,11 @@ export function VerifyEmailForm({ token }: VerifyEmailFormProps) {
   const [resendMessage, setResendMessage] = React.useState("");
   const [resendError, setResendError] = React.useState("");
 
+  const hasAttempted = React.useRef(false);
+
   React.useEffect(() => {
-    if (!token) return;
+    if (!token || hasAttempted.current) return;
+    hasAttempted.current = true;
 
     const verifyToken = async () => {
       try {

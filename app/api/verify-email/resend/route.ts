@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { generateEmailVerificationToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
 import { VerificationEmail } from "@/emails/VerificationEmail";
-import { ratelimit } from "@/lib/rate-limit";
+import { verifyEmailRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 import { getClientIp } from "@/lib/ip";
 import * as React from "react";
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
   // Rate limiting check
   const ip = getClientIp(req);
-  const limitRes = await ratelimit.limit(`resend-verify:${ip}`);
+  const limitRes = await verifyEmailRateLimit.limit(`resend-verify:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
       { message: "Too many requests. Please try again later." },
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     // Generate new email verification token
     const token = await generateEmailVerificationToken(user.email);
-    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+    const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
 
     // Send verification email
     await sendEmail({

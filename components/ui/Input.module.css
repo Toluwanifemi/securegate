@@ -37,6 +37,15 @@
   box-shadow: 0 0 0 2px rgba(98, 0, 238, 0.15); /* Subtle focus ring based on brand color */
 }
 
+.input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-inverse-on-surface) inset !important;
+  -webkit-text-fill-color: var(--color-on-surface) !important;
+}
+
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-inverse-on-surface) inset, 0 0 0 2px rgba(98, 0, 238, 0.15) !important;
+}
+
 .input::placeholder {
   color: var(--color-outline);
   opacity: 0.8;
@@ -46,6 +55,10 @@
   background-color: var(--color-surface-container-low);
   color: var(--color-outline);
   cursor: not-allowed;
+}
+
+.inputActive {
+  background-color: var(--color-inverse-on-surface);
 }
 
 /* Error States */

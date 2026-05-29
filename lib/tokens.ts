@@ -18,15 +18,15 @@ export function hashToken(token: string): string {
 
 /**
  * Creates an email verification token for a user.
- * Stores only the SHA-256 hash. Expires in 24 hours.
+ * Stores only the SHA-256 hash. Expires in 15 minutes.
  */
 export async function generateEmailVerificationToken(identifier: string) {
   const token = generateSecureToken();
   const hashed = hashToken(token);
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
   // Delete existing verification tokens for this identifier AND all expired tokens database-wide to avoid bloat
-  await db.emailVerificationToken.deleteMany({
+  await db.verificationToken.deleteMany({
     where: {
       OR: [
         { identifier },
@@ -35,7 +35,7 @@ export async function generateEmailVerificationToken(identifier: string) {
     },
   });
 
-  const emailVerificationToken = await db.emailVerificationToken.create({
+  const emailVerificationToken = await db.verificationToken.create({
     data: {
       identifier,
       token: hashed,
@@ -84,7 +84,7 @@ export async function generatePasswordResetToken(email: string) {
  */
 export async function validateEmailVerificationToken(token: string) {
   const hashed = hashToken(token);
-  const tokenEntry = await db.emailVerificationToken.findUnique({
+  const tokenEntry = await db.verificationToken.findUnique({
     where: { token: hashed },
   });
 
@@ -92,7 +92,7 @@ export async function validateEmailVerificationToken(token: string) {
 
   const hasExpired = new Date() > tokenEntry.expires;
   if (hasExpired) {
-    await db.emailVerificationToken.delete({ where: { token: tokenEntry.token } }).catch((err) => {
+    await db.verificationToken.delete({ where: { token: tokenEntry.token } }).catch((err) => {
       console.error("[TOKENS] Failed to delete expired email verification token", err);
     });
     return null;

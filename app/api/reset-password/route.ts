@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { ResetPasswordSchema } from "@/lib/validations/auth";
 import { validatePasswordResetToken } from "@/lib/tokens";
-import { ratelimit } from "@/lib/rate-limit";
+import { resetPasswordRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 import { hashPassword } from "@/lib/password-hash";
 import { getClientIp } from "@/lib/ip";
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
   // Rate limiting check
   const ip = getClientIp(req);
-  const limitRes = await ratelimit.limit(`reset-password:${ip}`);
+  const limitRes = await resetPasswordRateLimit.limit(`reset-password:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
       { message: "Too many requests. Please try again later." },

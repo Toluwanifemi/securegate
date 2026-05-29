@@ -5,7 +5,7 @@ import { SignUpSchema } from "@/lib/validations/auth";
 import { generateEmailVerificationToken } from "@/lib/tokens";
 import { sendEmail } from "@/lib/email";
 import { VerificationEmail } from "@/emails/VerificationEmail";
-import { ratelimit } from "@/lib/rate-limit";
+import { registerRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 import { hashPassword } from "@/lib/password-hash";
 import { getClientIp } from "@/lib/ip";
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   // Rate limiting check based on client IP
   const ip = getClientIp(req);
-  const limitRes = await ratelimit.limit(`register:${ip}`);
+  const limitRes = await registerRateLimit.limit(`register:${ip}`);
   if (!limitRes.success) {
     return NextResponse.json(
       { message: "Too many requests. Please try again later." },
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       // If user exists and is not verified, silently trigger a new verification email
       if (!existingUser.emailVerified) {
         const token = await generateEmailVerificationToken(existingUser.email);
-        const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+        const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
         
         await sendEmail({
           to: email,
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
     // Generate email verification token
     const token = await generateEmailVerificationToken(newUser.email);
-    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+    const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
 
     // Send verification email
     const emailResult = await sendEmail({

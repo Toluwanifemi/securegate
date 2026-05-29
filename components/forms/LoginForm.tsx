@@ -53,15 +53,23 @@ export function LoginForm() {
       });
 
       if (res?.error) {
-        // Safe, non-revealing error message
-        setErrors({ form: "Invalid email or password. Please try again." });
+        if (res.status === 429 || res.error.includes("429") || res.error.includes("Too many requests")) {
+          setErrors({ form: "Too many requests. Please try again later." });
+        } else {
+          // Safe, non-revealing error message
+          setErrors({ form: "Invalid email or password. Please try again." });
+        }
         setIsLoading(false);
       } else {
         router.push(callbackUrl);
         router.refresh();
       }
-    } catch {
-      setErrors({ form: "An unexpected error occurred. Please try again." });
+    } catch (err: any) {
+      if (err?.message?.includes("429") || err?.status === 429) {
+        setErrors({ form: "Too many requests. Please try again later." });
+      } else {
+        setErrors({ form: "An unexpected error occurred. Please try again." });
+      }
       setIsLoading(false);
     }
   };
@@ -85,7 +93,17 @@ export function LoginForm() {
         type="email"
         placeholder="you@example.com"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+        }}
+        onBlur={() => {
+          if (!email.trim()) {
+            setErrors((prev) => ({ ...prev, email: "Enter a Valid Email Address" }));
+          }
+        }}
+        onFocus={() => setErrors((prev) => ({ ...prev, form: undefined }))}
+        className={email.length > 0 ? styles.emailActive : undefined}
         error={errors.email}
         disabled={isLoading}
         autoComplete="email"
@@ -98,6 +116,7 @@ export function LoginForm() {
         placeholder="••••••••"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        onFocus={() => setErrors((prev) => ({ ...prev, form: undefined }))}
         error={errors.password}
         disabled={isLoading}
         autoComplete="current-password"

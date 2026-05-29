@@ -14,9 +14,39 @@ export function SignUpForm() {
   const [email, setEmail] = React.useState("");
   const [emailTouched, setEmailTouched] = React.useState(false);
   const [password, setPassword] = React.useState("");
+  const [passwordFocused, setPasswordFocused] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [errors, setErrors] = React.useState<{ name?: string; email?: string; password?: string; form?: string }>({});
+
+  const handleNameBlur = () => {
+    setNameTouched(true);
+    if (!name.trim()) {
+      setErrors((prev) => ({ ...prev, name: "This field cannot be empty" }));
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+  };
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    if (!email.trim()) {
+      setErrors((prev) => ({ ...prev, email: "Enter a Valid Email Address" }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setErrors((prev) => ({ ...prev, email: "Enter a Valid Email Address" }));
+    } else {
+      setErrors((prev) => ({ ...prev, email: undefined }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,8 +130,8 @@ export function SignUpForm() {
         type="text"
         placeholder="Jane Doe"
         value={name}
-        onChange={(e) => setName(e.target.value)}
-        onBlur={() => setNameTouched(true)}
+        onChange={handleNameChange}
+        onBlur={handleNameBlur}
         className={nameTouched ? styles.nameDone : undefined}
         error={errors.name}
         disabled={isLoading}
@@ -114,9 +144,9 @@ export function SignUpForm() {
         type="email"
         placeholder="jane@example.com"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        onBlur={() => setEmailTouched(true)}
-        className={emailTouched ? styles.nameDone : undefined}
+        onChange={handleEmailChange}
+        onBlur={handleEmailBlur}
+        className={email.length > 0 ? styles.nameDone : undefined}
         error={errors.email}
         disabled={isLoading}
         autoComplete="email"
@@ -129,13 +159,15 @@ export function SignUpForm() {
         placeholder="••••••••"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        onFocus={() => setPasswordFocused(true)}
+        onBlur={() => setPasswordFocused(false)}
         error={errors.password}
         disabled={isLoading}
         autoComplete="new-password"
         required
       />
 
-      <PasswordStrengthIndicator password={password} />
+      <PasswordStrengthIndicator password={password} isFocused={passwordFocused} />
 
       <Button type="submit" className={styles.button} isLoading={isLoading}>
         Create Account
