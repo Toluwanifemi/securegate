@@ -53,7 +53,8 @@ export async function POST(req: Request) {
 
     // Generate secure password reset token
     const token = await generatePasswordResetToken(user.email);
-    const resetUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=reset-password&token=${token.token}`;
+    const origin = req.headers.get("origin") || process.env.AUTH_URL || process.env.NEXTAUTH_URL;
+    const resetUrl = `${origin}/auth?mode=forgot-password/reset&token=${token.token}`;
 
     // Send reset email
     const emailResult = await sendEmail({

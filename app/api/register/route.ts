@@ -49,7 +49,8 @@ export async function POST(req: Request) {
       // If user exists and is not verified, silently trigger a new verification email
       if (!existingUser.emailVerified) {
         const token = await generateEmailVerificationToken(existingUser.email);
-        const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+        const origin = req.headers.get("origin") || process.env.AUTH_URL || process.env.NEXTAUTH_URL;
+        const verificationUrl = `${origin}/auth?mode=verify-email&token=${token.token}`;
         
         await sendEmail({
           to: email,
@@ -81,7 +82,8 @@ export async function POST(req: Request) {
 
     // Generate email verification token
     const token = await generateEmailVerificationToken(newUser.email);
-    const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+    const origin = req.headers.get("origin") || process.env.AUTH_URL || process.env.NEXTAUTH_URL;
+    const verificationUrl = `${origin}/auth?mode=verify-email&token=${token.token}`;
 
     // Send verification email
     const emailResult = await sendEmail({

@@ -54,7 +54,8 @@ export async function POST(req: Request) {
 
     // Generate new email verification token
     const token = await generateEmailVerificationToken(user.email);
-    const verificationUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL}/auth?mode=verify-email&token=${token.token}`;
+    const origin = req.headers.get("origin") || process.env.AUTH_URL || process.env.NEXTAUTH_URL;
+    const verificationUrl = `${origin}/auth?mode=verify-email&token=${token.token}`;
 
     // Send verification email
     await sendEmail({
